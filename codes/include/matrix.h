@@ -8,18 +8,32 @@
 #ifndef _MATRIX_H
 #define _MATRIX_H
 
-typedef 	int 				matrix_int;
-typedef 	long long 			matrix_long;
-typedef 	float 				matrix_float;
-typedef 	double 				matrix_double;
+typedef 	short 						mat_short;
+typedef 	int 						mat_int;
+typedef 	long long 					mat_long;
+typedef 	float 						mat_float;
+typedef 	double 						mat_double;
 
-#define 	MATRIX_TYPE 		matrix_int
+#define 	MAT_TYPE 					mat_int
+#define 	DISP_ERR(str) 				fprintf(stderr, "%s \n", str)
+#define 	CHECK(row, col) 			((row > 0 && col > 0) ? 1 : 0)
 
-typedef struct matrix_info{
-	MATRIX_TYPE *pMatrix;
-	int row;
-	int col;
-}matrx_t;
+typedef struct matrix_struct_info {
+	MAT_TYPE *pMat; //point to a two-dimensional matrix
+	mat_short row;
+	mat_short col;
+}matrix_t, *matrix_ptr;
+
+typedef enum {
+	MAT_OK = 0,
+	MAT_ERR,
+}MAT_STATUS;
+
+matrix_ptr matrix_create(mat_short row, mat_short col);
+MAT_STATUS matrix_insert(matrix_ptr matrix, mat_short row, \
+	mat_short col, MAT_TYPE elem);
+MAT_STATUS matrix_disp(matrix_ptr matrix);
+MAT_STATUS matrix_free(matrix_ptr matrix);
 
 #endif
 

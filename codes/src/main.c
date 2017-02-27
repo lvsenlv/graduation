@@ -10,7 +10,18 @@
 
 int main(int argc, char **argv)
 {
-    (void) 0;
+    matrix_ptr matrix = matrix_create(100, 5);
+	printf("%s in matrix_create \n", (matrix ? "success" : "error"));
+
+	int i = 0, j = 0;
+	for(i = 0; i < 100; i++)
+	{
+		for(j = 0; j < 5; j++)
+			matrix_insert(matrix, i, j, i*j);
+	}
+
+	matrix_disp(matrix);
+	matrix_free(matrix);
 
     return 0;
 }
