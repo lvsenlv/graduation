@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 	for(i = 0; i < 100; i++)
 	{
 		for(j = 0; j < 5; j++)
-			matrix_insert(matrix, i, j, i*j);
+			matrix_set(matrix, i, j, i*j);
 	}
 
 	matrix_disp(matrix);

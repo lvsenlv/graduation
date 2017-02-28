@@ -8,20 +8,29 @@
 #ifndef _MATRIX_H
 #define _MATRIX_H
 
-typedef 	short 						mat_short;
-typedef 	int 						mat_int;
-typedef 	long long 					mat_long;
-typedef 	float 						mat_float;
-typedef 	double 						mat_double;
+typedef 	short 							_mat_short;
+typedef 	int 							_mat_int;
+typedef 	long long 						_mat_long;
+typedef 	float 							_mat_float;
+typedef 	double 							_mat_double;
+typedef 	char 							_mat_char;
+#define 	_VOL 							volatile
+#define 	_CON 							const
+#define 	_STA 							static
 
-#define 	MAT_TYPE 					mat_int
-#define 	DISP_ERR(str) 				fprintf(stderr, "%s \n", str)
-#define 	CHECK(row, col) 			((row > 0 && col > 0) ? 1 : 0)
+#define 	MAT_TYPE 						_mat_int
+#define 	DISP_ERR(str) 					fprintf(stderr, "%s \n", str)
+
+#ifndef _DEBUG_INLINE
+#define 	CHECK_ROW_COL(row, col) 		((row > 0 && col > 0) ? 1 : 0)
+#define 	CHECK_MATRIX(matrix) 			((NULL == matrix) ? -1 : 0)
+#define 	CHECK_PMAT(matrix) 				((NULL == matrix->pMat) ? -1 : 0)
+#endif //_DEBUG_INLINE
 
 typedef struct matrix_struct_info {
 	MAT_TYPE *pMat; //point to a two-dimensional matrix
-	mat_short row;
-	mat_short col;
+	_mat_short row;
+	_mat_short col;
 }matrix_t, *matrix_ptr;
 
 typedef enum {
@@ -29,11 +38,19 @@ typedef enum {
 	MAT_ERR,
 }MAT_STATUS;
 
-matrix_ptr matrix_create(mat_short row, mat_short col);
-MAT_STATUS matrix_insert(matrix_ptr matrix, mat_short row, \
-	mat_short col, MAT_TYPE elem);
+#ifdef _DEBUG_INLINE
+inline MAT_STATUS CHECK_ROW_COL(_mat_short row, _mat_short col);
+inline MAT_STATUS CHECK_MATRIX(matrix_ptr matrix);
+inline MAT_STATUS CHECK_PMAT(matrix_ptr matrix);
+#endif //_DEBUG_INLINE
+
+matrix_ptr matrix_create(_mat_short row, _mat_short col);
+MAT_STATUS matrix_set(matrix_ptr matrix, _mat_short row, 
+	_mat_short col, MAT_TYPE elem);
 MAT_STATUS matrix_disp(matrix_ptr matrix);
 MAT_STATUS matrix_free(matrix_ptr matrix);
+matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB, 
+	_CON _mat_char format);
 
 #endif
 
