@@ -31,7 +31,7 @@ inline MAT_STATUS CHECK_PMAT(matrix_ptr matrix)
 
 matrix_ptr matrix_create(_mat_short row, _mat_short col)
 {
-	if(CHECK_ROW_COL(row, col))
+	if(MAT_ERR == CHECK_ROW_COL(row, col))
 	{
 		DISP_ERR("invalid row or col");
 		return NULL;
@@ -39,7 +39,7 @@ matrix_ptr matrix_create(_mat_short row, _mat_short col)
 
 	matrix_ptr matrix = NULL;
 	matrix = (matrix_ptr)malloc(sizeof(matrix_t));
-	if(CHECK_MATRIX(matrix))
+	if(MAT_ERR == CHECK_MATRIX(matrix))
 	{
 		DISP_ERR("error in malloc");
 		return NULL;
@@ -49,9 +49,9 @@ matrix_ptr matrix_create(_mat_short row, _mat_short col)
 	matrix->col = col;
 	//matrix->pMat = (MAT_TYPE *)malloc(sizeof(MAT_TYPE)*row*col);
 	matrix->pMat = (MAT_TYPE *)calloc(row*col, sizeof(MAT_TYPE));
-	if(CHECK_PMAT(matrix))
+	if(MAT_ERR == CHECK_PMAT(matrix))
 	{
-		DISP_ERR("error in malloc \n");
+		DISP_ERR("error in calloc \n");
 		free(matrix);
 		return NULL;
 	}
@@ -62,33 +62,33 @@ matrix_ptr matrix_create(_mat_short row, _mat_short col)
 inline MAT_STATUS matrix_set(matrix_ptr matrix, _mat_short row, 
 	_mat_short col, MAT_TYPE elem)
 {
-	if(CHECK_MATRIX(matrix))
+	if(MAT_ERR == CHECK_MATRIX(matrix))
 	{
 		DISP_ERR("invalid matrix");
 		return MAT_ERR;
 	}
 
-	if(CHECK_ROW_COL(row+1, col+1) || row+1 > matrix->row || \
+	if(MAT_ERR == CHECK_ROW_COL(row+1, col+1) || row+1 > matrix->row || \
 		col+1 > matrix->col)
 	{
 		DISP_ERR("incorrect insert position");
 		return MAT_ERR;
 	}
 
-	matrix->pMat[matrix->col*row + col] = elem;
+	VALUE(matrix, row, col) = elem;
  
 	return MAT_OK;
 }
 
 MAT_STATUS matrix_disp(matrix_ptr matrix)
 {
-	if(CHECK_MATRIX(matrix))
+	if(MAT_ERR == CHECK_MATRIX(matrix))
 	{
 		DISP_ERR("invalid matrix");
 		return MAT_ERR;
 	}
 
-	if(CHECK_PMAT(matrix))
+	if(MAT_ERR == CHECK_PMAT(matrix))
 		return MAT_OK;
 
 	_mat_short i = 0, j = 0;
@@ -96,19 +96,20 @@ MAT_STATUS matrix_disp(matrix_ptr matrix)
 	{
 		for(j = 0; j < matrix->col; j++)
 		{
-			printf("%d\t", matrix->pMat[matrix->col*i + j]);
+			printf("%d\t", VALUE(matrix, i, j));
 		}
 		printf("\n");
 	}
+    printf("\n");
 
 	return MAT_OK;
 }
 
 MAT_STATUS matrix_free(matrix_ptr matrix)
 {
-	if(CHECK_MATRIX(matrix))
+	if(MAT_ERR != CHECK_MATRIX(matrix))
 	{
-		if(CHECK_PMAT(matrix))
+		if(MAT_ERR != CHECK_PMAT(matrix))
 			free(matrix->pMat);
 		free(matrix);
 	}
@@ -117,15 +118,15 @@ MAT_STATUS matrix_free(matrix_ptr matrix)
 }
 
 matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB, 
-	_CON _mat_char format)
+	_CON _mat_uchar format)
 {
-	if(CHECK_MATRIX(matA) || CHECK_MATRIX(matB))
+	if(MAT_ERR == CHECK_MATRIX(matA) || MAT_ERR == CHECK_MATRIX(matB))
 	{
 		DISP_ERR("invalid matrix");
 		return NULL;
 	}
 
-	if(CHECK_PMAT(matA) || CHECK_PMAT(matB))
+	if(MAT_ERR == CHECK_PMAT(matA) || MAT_ERR == CHECK_PMAT(matB))
 	{
 		DISP_ERR("invalid pMat");
 		return NULL;
@@ -139,6 +140,7 @@ matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB,
 				DISP_ERR("dimension of two matrixs must be equal");
 				return NULL;
 			}
+            return matrix_sum_sub(matA, matB, '+');
 			break;
 		case '-' :
 			if(matA->row != matB->row || matA->col !=matB->col)
@@ -173,13 +175,13 @@ static matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB,
 	{
 		case '+' :
 			matrix_ret = (matrix_ptr)malloc(sizeof(matrix_t));
-			if(CHECK_MATRIX(matrix_ret))
+			if(MAT_ERR == CHECK_MATRIX(matrix_ret))
 			{
 				DISP_ERR("error in malloc");
 				return NULL;
 			}
 			matrix_ret->pMat = (MAT_TYPE *)malloc(sizeof(MAT_TYPE)*row*col);
-			if(CHECK_PMAT(matrix_ret))
+			if(MAT_ERR == CHECK_PMAT(matrix_ret))
 			{
 				DISP_ERR("error in malloc");
 				return NULL;
@@ -189,11 +191,11 @@ static matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB,
 			{
 				for(j = 0; j < col; j++)
 				{
-					matrix_ret->pMat[matrix_ret->col*i + j] = \
-						matA->pMat[matA->col*i + j] + matB->pMat[matB->col*i + j];
+                    VALUE(matrix_ret, i, j) = VALUE(matA, i, j) + \
+                        VALUE(matB, i, j);
 				}
 			}
-
+            return matrix_ret;
 			break;
 		case '-' :
 			break;

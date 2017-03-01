@@ -14,17 +14,19 @@ typedef 	long long 						_mat_long;
 typedef 	float 							_mat_float;
 typedef 	double 							_mat_double;
 typedef 	char 							_mat_char;
+typedef 	unsigned char 					_mat_uchar;
 #define 	_VOL 							volatile
 #define 	_CON 							const
 #define 	_STA 							static
 
 #define 	MAT_TYPE 						_mat_int
-#define 	DISP_ERR(str) 					fprintf(stderr, "%s \n", str)
+#define 	DISP_ERR(str) 					fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
+#define     VALUE(matrix, nrow, ncol)       (matrix->pMat[matrix->col*nrow+ncol])
 
 #ifndef _DEBUG_INLINE
-#define 	CHECK_ROW_COL(row, col) 		((row > 0 && col > 0) ? 1 : 0)
-#define 	CHECK_MATRIX(matrix) 			((NULL == matrix) ? -1 : 0)
-#define 	CHECK_PMAT(matrix) 				((NULL == matrix->pMat) ? -1 : 0)
+#define 	CHECK_ROW_COL(row, col) 		((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK)
+#define 	CHECK_MATRIX(matrix) 			((NULL == matrix) ? MAT_ERR : MAT_OK)
+#define 	CHECK_PMAT(matrix) 				((NULL == matrix->pMat) ? MAT_ERR : MAT_OK)
 #endif //_DEBUG_INLINE
 
 typedef struct matrix_struct_info {
@@ -50,7 +52,7 @@ MAT_STATUS matrix_set(matrix_ptr matrix, _mat_short row,
 MAT_STATUS matrix_disp(matrix_ptr matrix);
 MAT_STATUS matrix_free(matrix_ptr matrix);
 matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB, 
-	_CON _mat_char format);
+	_CON _mat_uchar format);
 
 #endif
 
