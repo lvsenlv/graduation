@@ -8,37 +8,54 @@
 #ifndef _MATRIX_H
 #define _MATRIX_H
 
-typedef 	short 							_mat_short;
-typedef 	int 							_mat_int;
-typedef 	long long 						_mat_long;
-typedef 	float 							_mat_float;
-typedef 	double 							_mat_double;
-typedef 	char 							_mat_char;
-typedef 	unsigned char 					_mat_uchar;
-#define 	_VOL 							volatile
-#define 	_CON 							const
-#define 	_STA 							static
+typedef     short                           _mat_short;
+typedef     int                             _mat_int;
+typedef     long long                       _mat_long;
+typedef     float                           _mat_float;
+typedef     double                          _mat_double;
+typedef     char                            _mat_char;
+typedef     unsigned char                   _mat_uchar;
 
-#define 	MAT_TYPE 						_mat_int
-#define 	DISP_ERR(str) 					fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
+
+
+#define     _VOL                            volatile
+#define     _CON                            const
+#define     _STA                            static
+#define     _MAT_SHORT                      (short)
+#define     _MAT_INT                        (int)
+#define     _MAT_LONG                       (long long)
+#define     _MAT_FLOAT                      (float)
+#define     _MAT_DOUBLE                     (double)
+#define     _MAT_CHAR                       (char)
+#define     _MAT_UCHAR                      (unsigned char)
+
+#define     MAT_TYPE                        _mat_int
+#define     DISP_ERR(str)                   fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
 #define     VALUE(matrix, nrow, ncol)       (matrix->pMat[matrix->col*nrow+ncol])
+#define     MAT_ADD                         (_MAT_CHAR'+')
+#define     MAT_SUB                         (_MAT_CHAR'-')
+#define     MAT_MUL                         (_MAT_CHAR'*')
 
 #ifndef _DEBUG_INLINE
-#define 	CHECK_ROW_COL(row, col) 		((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK)
-#define 	CHECK_MATRIX(matrix) 			((NULL == matrix) ? MAT_ERR : MAT_OK)
-#define 	CHECK_PMAT(matrix) 				((NULL == matrix->pMat) ? MAT_ERR : MAT_OK)
+#define     CHECK_ROW_COL(row, col)         ((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK)
+#define     CHECK_MATRIX(matrix)            ((NULL == matrix) ? MAT_ERR : MAT_OK)
+#define     CHECK_PMAT(matrix)              ((NULL == matrix->pMat) ? MAT_ERR : MAT_OK)
 #endif //_DEBUG_INLINE
 
+
+
 typedef struct matrix_struct_info {
-	MAT_TYPE *pMat; //point to a two-dimensional matrix
-	_mat_short row;
-	_mat_short col;
+    MAT_TYPE *pMat; //point to a two-dimensional matrix
+    _mat_short row;
+    _mat_short col;
 }matrix_t, *matrix_ptr;
 
 typedef enum {
-	MAT_OK = 0,
-	MAT_ERR,
+    MAT_OK = 0,
+    MAT_ERR,
 }MAT_STATUS;
+
+
 
 #ifdef _DEBUG_INLINE
 inline MAT_STATUS CHECK_ROW_COL(_mat_short row, _mat_short col);
@@ -48,11 +65,11 @@ inline MAT_STATUS CHECK_PMAT(matrix_ptr matrix);
 
 matrix_ptr matrix_create(_mat_short row, _mat_short col);
 MAT_STATUS matrix_set(matrix_ptr matrix, _mat_short row, 
-	_mat_short col, MAT_TYPE elem);
+    _mat_short col, MAT_TYPE elem);
 MAT_STATUS matrix_disp(matrix_ptr matrix);
 MAT_STATUS matrix_free(matrix_ptr matrix);
 matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB, 
-	_CON _mat_uchar format);
+    _CON _mat_char format);
 
 #endif
 
