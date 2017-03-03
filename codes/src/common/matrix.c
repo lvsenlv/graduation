@@ -9,28 +9,28 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-_STA matrix_pst matrix_sum_sub(matrix_pst matA, matrix_pst matB, 
-    _CON _mat_char format);
-_STA matrix_pst matrix_multiply(matrix_pst matA, matrix_pst matB);
+_STA _matrix_pst matrix_sum_sub(_matrix_pst matA, _matrix_pst matB, 
+    _CON _mat_char symbol);
+_STA _matrix_pst matrix_multiply(_matrix_pst matA, _matrix_pst matB);
 
 #ifdef _DEBUG_INLINE
-inline MAT_STATUS CHECK_ROW_COL(_MAT_ROW row, _MAT_COL col)
+inline _MAT_STATUS CHECK_ROW_COL(_MAT_ROW row, _MAT_COL col)
 {
     return ((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK);
 }
 
-inline MAT_STATUS CHECK_MATRIX(matrix_pst mat)
+inline _MAT_STATUS CHECK_MATRIX(_matrix_pst mat)
 {
     return ((NULL == mat) ? MAT_ERR : MAT_OK);
 }
 
-inline MAT_STATUS CHECK_PMAT(matrix_pst mat)
+inline _MAT_STATUS CHECK_PMAT(_matrix_pst mat)
 {
     return ((NULL == mat->pMat) ? MAT_ERR : MAT_OK);
 }
 #endif //_DEBUG_INLINE
 
-matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col)
+_matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col)
 {
     if(MAT_ERR == CHECK_ROW_COL(row, col))
     {
@@ -38,8 +38,8 @@ matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col)
         return NULL;
     }
 
-    matrix_pst mat = NULL;
-    mat = (matrix_pst)malloc(sizeof(matrix_st));
+    _matrix_pst mat = NULL;
+    mat = (_matrix_pst)malloc(sizeof(_matrix_st));
     if(MAT_ERR == CHECK_MATRIX(mat))
     {
         DISP_ERR("error in malloc");
@@ -60,7 +60,7 @@ matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col)
     return mat;
 }
 
-inline MAT_STATUS matrix_set(matrix_pst mat, _MAT_ROW row, 
+inline _MAT_STATUS matrix_set(_matrix_pst mat, _MAT_ROW row, 
     _MAT_COL col, _MAT_TYPE elem)
 {
     if(MAT_ERR == CHECK_MATRIX(mat))
@@ -81,7 +81,7 @@ inline MAT_STATUS matrix_set(matrix_pst mat, _MAT_ROW row,
     return MAT_OK;
 }
 
-MAT_STATUS matrix_disp(matrix_pst mat)
+_MAT_STATUS matrix_disp(_matrix_pst mat)
 {
     if(MAT_ERR == CHECK_MATRIX(mat))
     {
@@ -98,16 +98,16 @@ MAT_STATUS matrix_disp(matrix_pst mat)
     {
         for(j = 0; j < mat->col; j++)
         {
-            printf("%d\t", VALUE(mat, i, j));
+            DISP("%d\t", VALUE(mat, i, j));
         }
-        printf("\n");
+        DISP("\n");
     }
-    printf("\n");
+    //printf("\n");
 
     return MAT_OK;
 }
 
-MAT_STATUS matrix_free(matrix_pst mat)
+_MAT_STATUS matrix_free(_matrix_pst mat)
 {
     if(MAT_ERR != CHECK_MATRIX(mat))
     {
@@ -119,8 +119,8 @@ MAT_STATUS matrix_free(matrix_pst mat)
     return MAT_OK;
 }
 
-matrix_pst matrix_calculate(matrix_pst matA, matrix_pst matB, 
-    _CON _mat_char format)
+_matrix_pst matrix_calculate(_matrix_pst matA, _matrix_pst matB, 
+    _CON _mat_char symbol)
 {
     if(MAT_ERR == CHECK_MATRIX(matA) || MAT_ERR == CHECK_MATRIX(matB))
     {
@@ -134,7 +134,7 @@ matrix_pst matrix_calculate(matrix_pst matA, matrix_pst matB,
         return NULL;
     }
 
-    switch(format)
+    switch(symbol)
     {
         case MAT_ADD :
             if(matA->row != matB->row || matA->col !=matB->col)
@@ -161,21 +161,21 @@ matrix_pst matrix_calculate(matrix_pst matA, matrix_pst matB,
             return matrix_multiply(matA, matB);
             break;
         default :
-            DISP_ERR("invalid format");
+            DISP_ERR("invalid symbol");
             break;
     }
 
     return NULL;
 }
 
-_STA matrix_pst matrix_sum_sub(matrix_pst matA, matrix_pst matB, 
-    _CON _mat_char format)
+_STA _matrix_pst matrix_sum_sub(_matrix_pst matA, _matrix_pst matB, 
+    _CON _mat_char symbol)
 {
     _MAT_ROW row = matA->row, i = 0;
     _MAT_COL col = matB->col, j = 0;
-    matrix_pst mat_ret = NULL;
+    _matrix_pst mat_ret = NULL;
 
-    switch(format)
+    switch(symbol)
     {
         case MAT_ADD :
             mat_ret = matrix_create(row, col);
@@ -221,11 +221,11 @@ _STA matrix_pst matrix_sum_sub(matrix_pst matA, matrix_pst matB,
     }
 }
 
-_STA matrix_pst matrix_multiply(matrix_pst matA, matrix_pst matB)
+_STA _matrix_pst matrix_multiply(_matrix_pst matA, _matrix_pst matB)
 {
     _MAT_ROW rowA = matA->row;
     _MAT_COL colA = matA->col, colB = matB->col;
-    matrix_pst mat_ret = NULL;
+    _matrix_pst mat_ret = NULL;
 
     mat_ret = matrix_create(rowA, colB);
     if(MAT_ERR == CHECK_MATRIX(mat_ret))

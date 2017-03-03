@@ -5,8 +5,8 @@
 	> Created Time: 2017年02月27日 星期一 16时37分30秒
  ************************************************************************/
 
-#ifndef _MATRIX_H
-#define _MATRIX_H
+#ifndef __MATRIX_H
+#define __MATRIX_H
 
 typedef     short                           _mat_short;
 typedef     int                             _mat_int;
@@ -37,40 +37,42 @@ typedef     unsigned char                   _mat_uchar;
 
 #define     DISP_ERR(str) \
             fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
+#define     DISP(format, args...) \
+            fprintf(stdout, format, ##args)
 #define     VALUE(mat, nrow, ncol)          (mat->pMat[mat->col*nrow+ncol])
 
-#ifndef _DEBUG_INLINE
+#ifndef __DEBUG_INLINE
 #define     CHECK_ROW_COL(row, col)         ((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK)
 #define     CHECK_MATRIX(mat)               ((NULL == mat) ? MAT_ERR : MAT_OK)
 #define     CHECK_PMAT(mat)                 ((NULL == mat->pMat) ? MAT_ERR : MAT_OK)
-#endif //_DEBUG_INLINE
+#endif //__DEBUG_INLINE
 
-typedef struct matrix_struct_info {
+typedef struct _matrix_struct_info {
     _MAT_TYPE *pMat; //point to a two-dimensional matrix
     _MAT_ROW row;
     _MAT_COL col;
-}matrix_st, *matrix_pst;
+}_matrix_st, *_matrix_pst, _matrix;
 
 typedef enum {
     MAT_OK = 0,
     MAT_ERR,
-}MAT_STATUS;
+}_MAT_STATUS;
 
 
 
-#ifdef _DEBUG_INLINE
-inline MAT_STATUS CHECK_ROW_COL(_MAT_ROW row, _MAT_COL col);
-inline MAT_STATUS CHECK_MATRIX(matrix_pst mat);
-inline MAT_STATUS CHECK_PMAT(matrix_pst mat);
-#endif //_DEBUG_INLINE
+#ifdef __DEBUG_INLINE
+inline _MAT_STATUS CHECK_ROW_COL(_MAT_ROW row, _MAT_COL col);
+inline _MAT_STATUS CHECK_MATRIX(_matrix_pst mat);
+inline _MAT_STATUS CHECK_PMAT(_matrix_pst mat);
+#endif //__DEBUG_INLINE
 
-matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col);
-MAT_STATUS matrix_set(matrix_pst mat, _MAT_ROW row, 
+_matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col);
+_MAT_STATUS matrix_set(_matrix_pst mat, _MAT_ROW row, 
     _MAT_COL col, _MAT_TYPE elem);
-MAT_STATUS matrix_disp(matrix_pst mat);
-MAT_STATUS matrix_free(matrix_pst mat);
-matrix_pst matrix_calculate(matrix_pst matA, matrix_pst matB, 
-    _CON _mat_char format);
+_MAT_STATUS matrix_disp(_matrix_pst mat);
+_MAT_STATUS matrix_free(_matrix_pst mat);
+_matrix_pst matrix_calculate(_matrix_pst matA, _matrix_pst matB, 
+    _CON _mat_char symbol);
 
 #endif
 
