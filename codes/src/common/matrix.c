@@ -9,28 +9,28 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-_STA matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB, 
+_STA matrix_pst matrix_sum_sub(matrix_pst matA, matrix_pst matB, 
     _CON _mat_char format);
-_STA matrix_ptr matrix_multiply(matrix_ptr matA, matrix_ptr matB);
+_STA matrix_pst matrix_multiply(matrix_pst matA, matrix_pst matB);
 
 #ifdef _DEBUG_INLINE
-inline MAT_STATUS CHECK_ROW_COL(_mat_short row, _mat_short col)
+inline MAT_STATUS CHECK_ROW_COL(_MAT_ROW row, _MAT_COL col)
 {
     return ((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK);
 }
 
-inline MAT_STATUS CHECK_MATRIX(matrix_ptr matrix)
+inline MAT_STATUS CHECK_MATRIX(matrix_pst mat)
 {
-    return ((NULL == matrix) ? MAT_ERR : MAT_OK);
+    return ((NULL == mat) ? MAT_ERR : MAT_OK);
 }
 
-inline MAT_STATUS CHECK_PMAT(matrix_ptr matrix)
+inline MAT_STATUS CHECK_PMAT(matrix_pst mat)
 {
-    return ((NULL == matrix->pMat) ? MAT_ERR : MAT_OK);
+    return ((NULL == mat->pMat) ? MAT_ERR : MAT_OK);
 }
 #endif //_DEBUG_INLINE
 
-matrix_ptr matrix_create(_mat_short row, _mat_short col)
+matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col)
 {
     if(MAT_ERR == CHECK_ROW_COL(row, col))
     {
@@ -38,66 +38,67 @@ matrix_ptr matrix_create(_mat_short row, _mat_short col)
         return NULL;
     }
 
-    matrix_ptr matrix = NULL;
-    matrix = (matrix_ptr)malloc(sizeof(matrix_t));
-    if(MAT_ERR == CHECK_MATRIX(matrix))
+    matrix_pst mat = NULL;
+    mat = (matrix_pst)malloc(sizeof(matrix_st));
+    if(MAT_ERR == CHECK_MATRIX(mat))
     {
         DISP_ERR("error in malloc");
         return NULL;
     }
 
-    matrix->row = row;
-    matrix->col = col;
-    //matrix->pMat = (MAT_TYPE *)malloc(sizeof(MAT_TYPE)*row*col);
-    matrix->pMat = (MAT_TYPE *)calloc(row*col, sizeof(MAT_TYPE));
-    if(MAT_ERR == CHECK_PMAT(matrix))
+    mat->row = row;
+    mat->col = col;
+    //mat->pMat = (_MAT_TYPE *)malloc(sizeof(_MAT_TYPE)*row*col);
+    mat->pMat = (_MAT_TYPE *)calloc(row*col, sizeof(_MAT_TYPE));
+    if(MAT_ERR == CHECK_PMAT(mat))
     {
         DISP_ERR("error in calloc \n");
-        free(matrix);
+        free(mat);
         return NULL;
     }
 
-    return matrix;
+    return mat;
 }
 
-inline MAT_STATUS matrix_set(matrix_ptr matrix, _mat_short row, 
-    _mat_short col, MAT_TYPE elem)
+inline MAT_STATUS matrix_set(matrix_pst mat, _MAT_ROW row, 
+    _MAT_COL col, _MAT_TYPE elem)
 {
-    if(MAT_ERR == CHECK_MATRIX(matrix))
+    if(MAT_ERR == CHECK_MATRIX(mat))
     {
         DISP_ERR("invalid matrix");
         return MAT_ERR;
     }
 
-    if(MAT_ERR == CHECK_ROW_COL(row+1, col+1) || row+1 > matrix->row || \
-        col+1 > matrix->col)
+    if(MAT_ERR == CHECK_ROW_COL(row+1, col+1) || row+1 > mat->row || \
+        col+1 > mat->col)
     {
         DISP_ERR("incorrect insert position");
         return MAT_ERR;
     }
 
-    VALUE(matrix, row, col) = elem;
+    VALUE(mat, row, col) = elem;
 
     return MAT_OK;
 }
 
-MAT_STATUS matrix_disp(matrix_ptr matrix)
+MAT_STATUS matrix_disp(matrix_pst mat)
 {
-    if(MAT_ERR == CHECK_MATRIX(matrix))
+    if(MAT_ERR == CHECK_MATRIX(mat))
     {
         DISP_ERR("invalid matrix");
         return MAT_ERR;
     }
 
-    if(MAT_ERR == CHECK_PMAT(matrix))
+    if(MAT_ERR == CHECK_PMAT(mat))
         return MAT_OK;
 
-    _mat_short i = 0, j = 0;
-    for(i = 0; i < matrix->row; i++)
+    _MAT_ROW i = 0;
+    _MAT_COL j = 0;
+    for(i = 0; i < mat->row; i++)
     {
-        for(j = 0; j < matrix->col; j++)
+        for(j = 0; j < mat->col; j++)
         {
-            printf("%d\t", VALUE(matrix, i, j));
+            printf("%d\t", VALUE(mat, i, j));
         }
         printf("\n");
     }
@@ -106,19 +107,19 @@ MAT_STATUS matrix_disp(matrix_ptr matrix)
     return MAT_OK;
 }
 
-MAT_STATUS matrix_free(matrix_ptr matrix)
+MAT_STATUS matrix_free(matrix_pst mat)
 {
-    if(MAT_ERR != CHECK_MATRIX(matrix))
+    if(MAT_ERR != CHECK_MATRIX(mat))
     {
-        if(MAT_ERR != CHECK_PMAT(matrix))
-            free(matrix->pMat);
-        free(matrix);
+        if(MAT_ERR != CHECK_PMAT(mat))
+            free(mat->pMat);
+        free(mat);
     }
 
     return MAT_OK;
 }
 
-matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB, 
+matrix_pst matrix_calculate(matrix_pst matA, matrix_pst matB, 
     _CON _mat_char format)
 {
     if(MAT_ERR == CHECK_MATRIX(matA) || MAT_ERR == CHECK_MATRIX(matB))
@@ -167,18 +168,18 @@ matrix_ptr matrix_calculate(matrix_ptr matA, matrix_ptr matB,
     return NULL;
 }
 
-_STA matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB, 
+_STA matrix_pst matrix_sum_sub(matrix_pst matA, matrix_pst matB, 
     _CON _mat_char format)
 {
-    _mat_short row = matA->row, col = matB->col;
-    _mat_short i = 0, j = 0;
-    matrix_ptr matrix_ret = NULL;
+    _MAT_ROW row = matA->row, i = 0;
+    _MAT_COL col = matB->col, j = 0;
+    matrix_pst mat_ret = NULL;
 
     switch(format)
     {
         case MAT_ADD :
-            matrix_ret = matrix_create(row, col);
-            if(MAT_ERR == CHECK_MATRIX(matrix_ret))
+            mat_ret = matrix_create(row, col);
+            if(MAT_ERR == CHECK_MATRIX(mat_ret))
             {
                 DISP_ERR("error in matrix_create");
                 return NULL;
@@ -188,16 +189,16 @@ _STA matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB,
             {
                 for(j = 0; j < col; j++)
                 {
-                    VALUE(matrix_ret, i, j) = VALUE(matA, i, j) + \
+                    VALUE(mat_ret, i, j) = VALUE(matA, i, j) + \
                         VALUE(matB, i, j);
                 }
             }
 
-            return matrix_ret;
+            return mat_ret;
             break;
         case MAT_SUB :
-            matrix_ret = matrix_create(row, col);
-            if(MAT_ERR == CHECK_MATRIX(matrix_ret))
+            mat_ret = matrix_create(row, col);
+            if(MAT_ERR == CHECK_MATRIX(mat_ret))
             {
                 DISP_ERR("error in matrix_create");
                 return NULL;
@@ -207,12 +208,12 @@ _STA matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB,
             {
                 for(j = 0; j < col; j++)
                 {
-                    VALUE(matrix_ret, i, j) = VALUE(matA, i, j) - \
+                    VALUE(mat_ret, i, j) = VALUE(matA, i, j) - \
                         VALUE(matB, i, j);
                 }
             }
 
-            return matrix_ret;
+            return mat_ret;
             break;
         default :
             return NULL;
@@ -220,21 +221,22 @@ _STA matrix_ptr matrix_sum_sub(matrix_ptr matA, matrix_ptr matB,
     }
 }
 
-_STA matrix_ptr matrix_multiply(matrix_ptr matA, matrix_ptr matB)
+_STA matrix_pst matrix_multiply(matrix_pst matA, matrix_pst matB)
 {
-    _mat_short rowA = matA->row, colA = matA->col;
-    _mat_short rowB = matB->row, colB = matB->col;
-    matrix_ptr matrix_ret = NULL;
+    _MAT_ROW rowA = matA->row;
+    _MAT_COL colA = matA->col, colB = matB->col;
+    matrix_pst mat_ret = NULL;
 
-    matrix_ret = matrix_create(rowA, colB);
-    if(MAT_ERR == CHECK_MATRIX(matrix_ret))
+    mat_ret = matrix_create(rowA, colB);
+    if(MAT_ERR == CHECK_MATRIX(mat_ret))
     {
         DISP_ERR("error in matrix_create");
         return NULL;
     }
     
-    _mat_short i = 0, j = 0, k = 0;
-    MAT_TYPE sum = 0;
+    _MAT_ROW i = 0;
+    _MAT_COL j = 0, k = 0;
+    _MAT_TYPE sum = 0;
 
     for(i = 0; i < rowA; i++)
     {
@@ -245,10 +247,10 @@ _STA matrix_ptr matrix_multiply(matrix_ptr matA, matrix_ptr matB)
             {
                 sum += VALUE(matA, i, k) * VALUE(matB, k, j);
             }
-            VALUE(matrix_ret, i, j) = sum;
+            VALUE(mat_ret, i, j) = sum;
         }
     }
     
-    return matrix_ret;
+    return mat_ret;
 }
 
