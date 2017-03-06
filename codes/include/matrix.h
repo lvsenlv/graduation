@@ -7,22 +7,25 @@
 
 #ifndef __MATRIX_H
 #define __MATRIX_H
+#include "common.h"
 
 typedef     short                           _mat_short;
+typedef     unsigned short                  _mat_ushort;
 typedef     int                             _mat_int;
+typedef     unsigned int                    _mat_uint;
 typedef     long long                       _mat_long;
+typedef     unsigned long long              _mat_ulong;
 typedef     float                           _mat_float;
 typedef     double                          _mat_double;
 typedef     char                            _mat_char;
 typedef     unsigned char                   _mat_uchar;
 
-#define     _VOL                            volatile
-#define     _CON                            const
-#define     _STA                            static
-
 #define     _MAT_SHORT                      (short)
+#define     _MAT_USHORT                     (unsigned short)
 #define     _MAT_INT                        (int)
+#define     _MAT_UINT                       (unsigned int)
 #define     _MAT_LONG                       (long long)
+#define     _MAT_ULONG                      (unsigned long long)
 #define     _MAT_FLOAT                      (float)
 #define     _MAT_DOUBLE                     (double)
 #define     _MAT_CHAR                       (char)
@@ -31,21 +34,16 @@ typedef     unsigned char                   _mat_uchar;
 #define     _MAT_TYPE                        _mat_int
 #define     _MAT_ROW                         _mat_short
 #define     _MAT_COL                         _MAT_ROW
+#define     _MAT_SIZE                        _mat_int
 #define     MAT_ADD                         (_MAT_CHAR'+')
 #define     MAT_SUB                         (_MAT_CHAR'-')
 #define     MAT_MUL                         (_MAT_CHAR'*')
 
-#define     DISP_ERR(str) \
-            fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
-#define     DISP(format, args...) \
-            fprintf(stdout, format, ##args)
 #define     VALUE(mat, nrow, ncol)          (mat->pMat[mat->col*nrow+ncol])
 
-#ifndef __DEBUG_INLINE
 #define     CHECK_ROW_COL(row, col)         ((row <= 0 || col <= 0) ? MAT_ERR : MAT_OK)
 #define     CHECK_MATRIX(mat)               ((NULL == mat) ? MAT_ERR : MAT_OK)
 #define     CHECK_PMAT(mat)                 ((NULL == mat->pMat) ? MAT_ERR : MAT_OK)
-#endif //__DEBUG_INLINE
 
 typedef struct _matrix_struct_info {
     _MAT_TYPE *pMat; //point to a two-dimensional matrix
@@ -60,17 +58,16 @@ typedef enum {
 
 
 
-#ifdef __DEBUG_INLINE
-inline _MAT_STATUS CHECK_ROW_COL(_MAT_ROW row, _MAT_COL col);
-inline _MAT_STATUS CHECK_MATRIX(_matrix_pst mat);
-inline _MAT_STATUS CHECK_PMAT(_matrix_pst mat);
-#endif //__DEBUG_INLINE
-
-_matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col);
+#ifdef __DEBUG
 _MAT_STATUS matrix_set(_matrix_pst mat, _MAT_ROW row, 
     _MAT_COL col, _MAT_TYPE elem);
+#else
+#define     matrix_set(mat, row, col, elem)      (VALUE(mat, row, col) = elem)
+#endif //__DEBUG
+
+_matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col);
 _MAT_STATUS matrix_disp(_matrix_pst mat);
-_MAT_STATUS matrix_free(_matrix_pst mat);
+inline void matrix_free(_matrix_pst mat);
 _matrix_pst matrix_calculate(_matrix_pst matA, _matrix_pst matB, 
     _CON _mat_char symbol);
 

@@ -13,6 +13,6 @@ $(shell mkdir -p $(OBJS_DIR))
 #modify the variables
 
 CFLAGS += -g -Wall -Wno-strict-aliasing -O0
-
+CFLAGS += -D__DEBUG
 export
 
