@@ -8,6 +8,8 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
+#include <stdio.h>
+
 #define     _VOL                            volatile
 #define     _CON                            const
 #define     _STA                            static

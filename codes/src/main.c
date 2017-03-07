@@ -8,28 +8,27 @@
 #include <stdio.h>
 #include "matrix.h"
 #include "matlab.h"
+#include "template.h"
 
 int main(int argc, char **argv)
-{
+{/*
     _MAT_TYPE array[3][3] = {
         {1, 2, 3},
         {4, 5, 6},
         {7, 8, 9},
     };
-
     _matrix matA;
     matA.pMat = &array[0][0];
     matA.row = 3;
-    matA.col = 3;    
+    matA.col = 3;
+
+    matrix_disp(&matA);*/
 
     _matrix_pst mat_ret = NULL;
-    mat_ret = sum(&matA, SUM_COL);
-    matrix_disp(&matA);
+    mat_ret = template_zero(16);
     matrix_disp(mat_ret);
-    //DISP("%d \n", mat_size);
-    
+
     matrix_free(mat_ret);
-    
     return 0;
 }
 

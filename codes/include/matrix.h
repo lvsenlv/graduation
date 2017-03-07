@@ -7,6 +7,7 @@
 
 #ifndef __MATRIX_H
 #define __MATRIX_H
+
 #include "common.h"
 
 typedef     short                           _mat_short;
@@ -20,24 +21,13 @@ typedef     double                          _mat_double;
 typedef     char                            _mat_char;
 typedef     unsigned char                   _mat_uchar;
 
-#define     _MAT_SHORT                      (short)
-#define     _MAT_USHORT                     (unsigned short)
-#define     _MAT_INT                        (int)
-#define     _MAT_UINT                       (unsigned int)
-#define     _MAT_LONG                       (long long)
-#define     _MAT_ULONG                      (unsigned long long)
-#define     _MAT_FLOAT                      (float)
-#define     _MAT_DOUBLE                     (double)
-#define     _MAT_CHAR                       (char)
-#define     _MAT_UCHAR                      (unsigned char)
-
 #define     _MAT_TYPE                        _mat_int
 #define     _MAT_ROW                         _mat_short
 #define     _MAT_COL                         _MAT_ROW
 #define     _MAT_SIZE                        _mat_int
-#define     MAT_ADD                         (_MAT_CHAR'+')
-#define     MAT_SUB                         (_MAT_CHAR'-')
-#define     MAT_MUL                         (_MAT_CHAR'*')
+#define     MAT_ADD                         ((_mat_char)'+')
+#define     MAT_SUB                         ((_mat_char)'-')
+#define     MAT_MUL                         ((_mat_char)'*')
 
 #define     VALUE(mat, nrow, ncol)          (mat->pMat[mat->col*nrow+ncol])
 

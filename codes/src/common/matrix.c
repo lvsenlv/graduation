@@ -5,7 +5,6 @@
 	> Created Time: 2017年02月27日 星期一 16时36分15秒
  ************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "matrix.h"
 
@@ -34,8 +33,11 @@ _matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col)
     mat->pMat = NULL;
     mat->row = row;
     mat->col = col;
-    //mat->pMat = (_MAT_TYPE *)malloc(sizeof(_MAT_TYPE)*row*col);
+#ifdef __DEBUG
     mat->pMat = (_MAT_TYPE *)calloc(row*col, sizeof(_MAT_TYPE));
+#else
+    mat->pMat = (_MAT_TYPE *)malloc(sizeof(_MAT_TYPE)*row*col);
+#endif //__DEBUG
     if(!mat->pMat)
     {
         DISP_ERR("error in calloc \n");
@@ -89,7 +91,7 @@ _MAT_STATUS matrix_disp(_matrix_pst mat)
     {
         for(j = 0; j < mat->col; j++)
         {
-            DISP("%d\t", VALUE(mat, i, j));
+            DISP("%d ", VALUE(mat, i, j));
         }
         DISP("\n");
     }

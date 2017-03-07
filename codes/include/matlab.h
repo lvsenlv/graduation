@@ -11,6 +11,12 @@
 #include <stdarg.h>
 #include "matrix.h"
 
+#ifdef __DEBUG
+#define     zeros(row, col)                           matrix_create(row, col)
+#else
+_matrix_pst zeros(_MAT_ROW row, _MAT_COL col);
+#endif //__DEBUG
+
 typedef enum {
     SUM_ROW = 1,
     SUM_COL,
@@ -18,6 +24,8 @@ typedef enum {
 }SUM_OPTS;
 
 void *sum(_matrix_pst mat, ...);
+_MAT_TYPE max(_matrix_pst mat);
+_matrix_pst ones(_MAT_ROW row, _MAT_COL col, ...);
 
 #endif
 
