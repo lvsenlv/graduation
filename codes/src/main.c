@@ -25,10 +25,23 @@ int main(int argc, char **argv)
     matrix_disp(&matA);*/
 
     _matrix_pst mat_ret = NULL;
-    mat_ret = template_zero(16);
+    
+    mat_ret = template_one(16);
     matrix_disp(mat_ret);
-
     matrix_free(mat_ret);
+    DISP("\n");
+    mat_ret = template_two(16);
+    matrix_disp(mat_ret);
+    matrix_free(mat_ret);
+    DISP("\n");
+    mat_ret = template_three(16);
+    matrix_disp(mat_ret);
+    matrix_free(mat_ret);
+    DISP("\n");
+    mat_ret = template_four(4);
+    matrix_disp(mat_ret);
+    matrix_free(mat_ret);
+    
     return 0;
 }
 

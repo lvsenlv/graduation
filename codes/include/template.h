@@ -10,7 +10,13 @@
 
 #include "matrix.h"
 
+#define     BASE_WID                        4
+
 _matrix_pst template_zero(_MAT_COL wid);
+_matrix_pst template_one(_MAT_COL wid);
+_matrix_pst template_two(_MAT_COL wid);
+_matrix_pst template_three(_MAT_COL wid);
+_matrix_pst template_four(_MAT_COL wid);
 
 #endif
 
