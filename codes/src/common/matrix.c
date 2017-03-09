@@ -95,7 +95,7 @@ _MAT_STATUS matrix_disp(_matrix_pst mat)
         }
         DISP("\n");
     }
-    //printf("\n");
+    //DISP("\n");
 
     return MAT_OK;
 }
