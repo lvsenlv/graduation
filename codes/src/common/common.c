@@ -8,9 +8,11 @@
 #include "common.h"
 
 #ifdef __LINUX
+#pragma message("Activate __LINUX")
 struct timeval g_start_time, g_stop_time;
 
 #ifdef __REDIRECTION
+#pragma message("Activate __REDIRECTION")
 FILE *g_disp_file = NULL;
 
 void __attribute__((constructor)) before_main(void)
@@ -32,7 +34,12 @@ void __attribute__((destructor)) after_main(void)
     STOP_COUNT;
     START_STOP;
 }
+#else //__REDIRECTION
+#pragma message("Unactivated __REDIRECTION")
 #endif //__REDIRECTION
 
+#else //__LINUX
+#pragma message("Unactivated __LINUX")
+#pragma message("Unactivated __REDIRECTION")
 #endif //__LINUX
 

@@ -8,7 +8,7 @@
 #include "template.h"
 #include "matlab.h"
 
-_matrix_pst g_number_mat[10] = {NULL};
+_matrix_pt g_number_mat[10] = {NULL};
 
 /* width : height = 1 : 4
 
@@ -25,13 +25,13 @@ lin1   0 1 1 0    line3
        
         line4
 */
-_matrix_pst template_zero(_MAT_COL wid)
+_matrix_pt template_zero(_MAT_COL wid)
 {
     _mat_short ratio = wid / BASE_WID; //thickness of zero
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -89,13 +89,13 @@ _matrix_pst template_zero(_MAT_COL wid)
        1 1 1 0
        
 */
-_matrix_pst template_one(_MAT_COL wid)
+_matrix_pt template_one(_MAT_COL wid)
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -140,13 +140,13 @@ line4  0 1 1 1
 
         line5
 */
-_matrix_pst template_two(_MAT_COL wid)
+_matrix_pt template_two(_MAT_COL wid)
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -221,13 +221,13 @@ _matrix_pst template_two(_MAT_COL wid)
 
         line5
 */
-_matrix_pst template_three(_MAT_COL wid) //copy from template_two
+_matrix_pt template_three(_MAT_COL wid) //copy from template_two
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -299,13 +299,13 @@ line1  0 1 1 0
        1 1 1 0
        
 */
-_matrix_pst template_four(_MAT_COL wid)
+_matrix_pt template_four(_MAT_COL wid)
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -374,13 +374,13 @@ _matrix_pst template_four(_MAT_COL wid)
 
         line5
 */
-_matrix_pst template_five(_MAT_COL wid) //copy from template_three
+_matrix_pt template_five(_MAT_COL wid) //copy from template_three
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -455,13 +455,13 @@ _matrix_pst template_five(_MAT_COL wid) //copy from template_three
 
         line5
 */
-_matrix_pst template_six(_MAT_COL wid) //copy from template_five
+_matrix_pt template_six(_MAT_COL wid) //copy from template_five
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -540,13 +540,13 @@ _matrix_pst template_six(_MAT_COL wid) //copy from template_five
        1 1 1 0
        
 */
-_matrix_pst template_seven(_MAT_COL wid) //copy from template_one
+_matrix_pt template_seven(_MAT_COL wid) //copy from template_one
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -597,13 +597,13 @@ _matrix_pst template_seven(_MAT_COL wid) //copy from template_one
 
         line5
 */
-_matrix_pst template_eight(_MAT_COL wid) //copy from template_six
+_matrix_pt template_eight(_MAT_COL wid) //copy from template_six
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -686,13 +686,13 @@ _matrix_pst template_eight(_MAT_COL wid) //copy from template_six
 
         line5
 */
-_matrix_pst template_nine(_MAT_COL wid) //copy from template_six
+_matrix_pt template_nine(_MAT_COL wid) //copy from template_six
 {
     _mat_short ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
-    _matrix_pst mat = NULL;
+    _matrix_pt mat = NULL;
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
@@ -759,7 +759,7 @@ _matrix_pst template_nine(_MAT_COL wid) //copy from template_six
 
 _MAT_STATUS template_create(_MAT_COL wid)
 {
-    _matrix_pst mat_ret = NULL;
+    _matrix_pt mat_ret = NULL;
     
     mat_ret = template_zero(wid);
     if(!mat_ret)

@@ -14,7 +14,7 @@
 #ifdef __DEBUG
 #define     zeros(row, col)                           matrix_create(row, col)
 #else
-_matrix_pst zeros(_MAT_ROW row, _MAT_COL col);
+_matrix_pt zeros(_MAT_ROW row, _MAT_COL col);
 #endif //__DEBUG
 
 typedef enum {
@@ -23,9 +23,9 @@ typedef enum {
     SUM_ALL,
 }SUM_OPTS;
 
-void *sum(_matrix_pst mat, ...);
-_MAT_TYPE max(_matrix_pst mat);
-_matrix_pst ones(_MAT_ROW row, _MAT_COL col, ...);
+void *sum(_matrix_pt mat, ...);
+_MAT_TYPE max(_matrix_pt mat);
+_matrix_pt ones(_MAT_ROW row, _MAT_COL col, ...);
 
 #endif
 

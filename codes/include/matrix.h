@@ -35,11 +35,13 @@ typedef     unsigned char                   _mat_uchar;
 #define     CHECK_MATRIX(mat)               ((NULL == mat) ? MAT_ERR : MAT_OK)
 #define     CHECK_PMAT(mat)                 ((NULL == mat->pMat) ? MAT_ERR : MAT_OK)
 
-typedef struct _matrix_struct_info {
+typedef struct _matrix_truct_info {
     _MAT_TYPE *pMat; //point to a two-dimensional matrix
     _MAT_ROW row;
     _MAT_COL col;
-}_matrix_st, *_matrix_pst, _matrix;
+}_matrix_t, *_matrix_pt;
+
+#define _matrix _matrix_t;
 
 typedef enum {
     MAT_OK = 0,
@@ -49,16 +51,16 @@ typedef enum {
 
 
 #ifdef __DEBUG
-_MAT_STATUS matrix_set(_matrix_pst mat, _MAT_ROW row, 
+_MAT_STATUS matrix_set(_matrix_pt mat, _MAT_ROW row, 
     _MAT_COL col, _MAT_TYPE elem);
 #else
 #define     matrix_set(mat, row, col, elem)      (VALUE(mat, row, col) = elem)
 #endif //__DEBUG
 
-_matrix_pst matrix_create(_MAT_ROW row, _MAT_COL col);
-_MAT_STATUS matrix_disp(_matrix_pst mat);
-inline void matrix_free(_matrix_pst mat);
-_matrix_pst matrix_calculate(_matrix_pst matA, _matrix_pst matB, 
+_matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col);
+_MAT_STATUS matrix_disp(_matrix_pt mat);
+void matrix_free(_matrix_pt mat);
+_matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB, 
     _CON _mat_char symbol);
 
 #endif

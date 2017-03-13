@@ -8,7 +8,7 @@
 #include <string.h>
 #include "matlab.h"
 
-void *sum(_matrix_pst mat, ...)
+void *sum(_matrix_pt mat, ...)
 {
 #ifdef __DEBUG
     if(!mat)
@@ -29,7 +29,7 @@ void *sum(_matrix_pst mat, ...)
     _MAT_ROW row = mat->row;
     _MAT_COL col = mat->col;
     _MAT_SIZE i = 0, j = 0;
-    _matrix_pst mat_ret = NULL;
+    _matrix_pt mat_ret = NULL;
     _MAT_SIZE size = row * col;
 
     va_start(arg_ptr, mat);
@@ -95,16 +95,13 @@ void *sum(_matrix_pst mat, ...)
             va_end(arg_ptr);
             return mat_ret;
             break;
-            //DISP_ERR("invalid parameters");
-            //return NULL;
-            //break;
     }
 
     va_end(arg_ptr);
     return NULL;
 }
 
-_MAT_TYPE max(_matrix_pst mat)
+_MAT_TYPE max(_matrix_pt mat)
 {
 #ifdef __DEBUG
     if(!mat)
@@ -132,9 +129,9 @@ _MAT_TYPE max(_matrix_pst mat)
 }
 
 #ifndef __DEBUG
-_matrix_pst zeros(_MAT_ROW row, _MAT_COL col)
+_matrix_pt zeros(_MAT_ROW row, _MAT_COL col)
 {
-    _matrix_pst mat_ret = NULL;
+    _matrix_pt mat_ret = NULL;
     
     mat_ret = matrix_create(row, col);
     if(!mat_ret)
@@ -149,9 +146,9 @@ _matrix_pst zeros(_MAT_ROW row, _MAT_COL col)
 }
 #endif //__DEBUG
 
-_matrix_pst ones(_MAT_ROW row, _MAT_COL col, ...)
+_matrix_pt ones(_MAT_ROW row, _MAT_COL col, ...)
 {
-    _matrix_pst mat_ret = NULL;
+    _matrix_pt mat_ret = NULL;
     
     mat_ret = matrix_create(row, col);
     if(!mat_ret)

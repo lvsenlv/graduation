@@ -10,7 +10,7 @@
 #include "matlab.h"
 #include "template.h"
 
-#define     REAL_WID                        32
+#define     REAL_WID                        8
 
 int main(int argc, char **argv)
 {
