@@ -39,6 +39,7 @@ _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col)
     {
         DISP_ERR("error in calloc \n");
         free(mat);
+        mat = NULL;
         return NULL;
     }
 #else
@@ -47,6 +48,7 @@ _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col)
     {
         DISP_ERR("error in malloc \n");
         free(mat);
+        mat = NULL;
         return NULL;
     }
 #endif //__DEBUG
@@ -111,8 +113,12 @@ void matrix_free(_matrix_pt mat)
     if(mat)
     {
         if(mat->pMat)
+        {
             free(mat->pMat);
+            mat->pMat = NULL;
+        }
         free(mat);
+        mat = NULL;
     }
 }
 
