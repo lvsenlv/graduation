@@ -19,6 +19,11 @@
 #define     DISP_ERR_PLUS(format, args...) \
             fprintf(stderr, format, ##args)
 
+typedef enum {
+    STAT_OK = 0,
+    STAT_ERR,
+}_G_STATUS;
+
 #ifdef __LINUX
 
 #include <sys/time.h>

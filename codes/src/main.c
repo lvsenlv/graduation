@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-    image_read(argv[1]);
+    image_read("/root/9.bmp");
     
     return 0;
 }
