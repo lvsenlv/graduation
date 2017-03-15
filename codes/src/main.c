@@ -5,18 +5,12 @@
 	> Created Time: 2017年02月27日 星期一 16时10分06秒
  ************************************************************************/
 
-#include <stdio.h>
-#include "matrix.h"
-#include "matlab.h"
-#include "template.h"
-
-#define     REAL_WID                        8
+#include "image.h"
 
 int main(int argc, char **argv)
 {
-    template_create(REAL_WID);
-    template_disp();
-    template_free();
+    image_read(argv[1]);
+    
     return 0;
 }
 
