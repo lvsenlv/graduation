@@ -16,6 +16,8 @@
 
 #define     DISP_ERR(str) \
             fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
+#define     DISP_ERR_PLUS(format, args...) \
+            fprintf(stderr, format, ##args)
 
 #ifdef __LINUX
 

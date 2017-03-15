@@ -48,7 +48,13 @@ typedef enum {
     MAT_ERR,
 }_MAT_STATUS;
 
-
+typedef enum {
+    ERR_MALLOC = 0,
+    ERR_MATRIX,
+    ERR_PMAT,
+    ERR_CREATE,
+    ERR_FATAL,
+}_MAT_STR;
 
 #ifdef __DEBUG
 _MAT_STATUS matrix_set(_matrix_pt mat, _MAT_ROW row, 

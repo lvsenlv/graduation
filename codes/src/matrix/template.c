@@ -9,6 +9,7 @@
 #include "matlab.h"
 
 _matrix_pt g_number_mat[10] = {NULL};
+extern _mat_char *g_mat_str[];
 
 /* width : height = 1 : 4
 
@@ -35,7 +36,7 @@ _matrix_pt template_zero(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
     
@@ -99,7 +100,7 @@ _matrix_pt template_one(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -150,7 +151,7 @@ _matrix_pt template_two(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -231,7 +232,7 @@ _matrix_pt template_three(_MAT_COL wid) //copy from template_two
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -309,7 +310,7 @@ _matrix_pt template_four(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -384,7 +385,7 @@ _matrix_pt template_five(_MAT_COL wid) //copy from template_three
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -465,7 +466,7 @@ _matrix_pt template_six(_MAT_COL wid) //copy from template_five
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -550,7 +551,7 @@ _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -607,7 +608,7 @@ _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -696,7 +697,7 @@ _matrix_pt template_nine(_MAT_COL wid) //copy from template_six
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR("error in matrix_create");
+        DISP_ERR(g_mat_str[ERR_CREATE]);
         return NULL;
     }
 
@@ -765,7 +766,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_zero");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -775,7 +776,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_one");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -785,7 +786,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_two");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -795,7 +796,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_three");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -805,7 +806,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_four");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -815,7 +816,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_five");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -825,7 +826,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_six");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -835,7 +836,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_seven");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -845,7 +846,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_eight");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -855,7 +856,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR("error in template_nine");
+        DISP_ERR(g_mat_str[ERR_FATAL]);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -884,7 +885,7 @@ void template_disp(void)
 #ifdef __DEBUG
         if(!g_number_mat[i])
         {
-            DISP("[%s][%d]: error in g_number_mat[%d] \n", \
+            DISP_ERR_PLUS("[%s][%d]: error in g_number_mat[%d] \n", \
                 __func__, __LINE__, i);
             continue;
         }
