@@ -8,26 +8,24 @@
 #include <string.h>
 #include "matlab.h"
 
-extern _mat_char *g_mat_str[];
-
 void *sum(_matrix_pt mat, ...)
 {
 #ifdef __DEBUG
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_MATRIX]);
+        DISP_ERR(ERR_MATRIX);
         return NULL;
     }
     if(!mat->pMat)
     {
-        DISP_ERR(g_mat_str[ERR_PMAT]);
+        DISP_ERR(ERR_PMAT);
         return NULL;
     }
 #endif //__DEBUG
 
     va_list arg_ptr = NULL;
     int opts = 0;
-    _MAT_TYPE ret = 0;
+    uint32_t ret = 0;
     _MAT_ROW row = mat->row;
     _MAT_COL col = mat->col;
     _MAT_SIZE i = 0, j = 0;
@@ -46,7 +44,7 @@ void *sum(_matrix_pt mat, ...)
             mat_ret = matrix_create(1, col);
             if(!mat_ret)
             {
-                DISP_ERR(g_mat_str[ERR_CREATE]);
+                DISP_ERR(ERR_CREATE);
                 return NULL;
             }
 
@@ -70,7 +68,7 @@ void *sum(_matrix_pt mat, ...)
             }
 
             va_end(arg_ptr);
-            return (_MAT_TYPE *)ret;
+            return (uint32_t *)ret;
             break;
         case SUM_ROW:
         default :    
@@ -80,7 +78,7 @@ void *sum(_matrix_pt mat, ...)
             mat_ret = matrix_create(row, 1);
             if(!mat_ret)
             {
-                DISP_ERR(g_mat_str[ERR_CREATE]);
+                DISP_ERR(ERR_CREATE);
                 return NULL;
             }
             
@@ -108,12 +106,12 @@ _MAT_TYPE max(_matrix_pt mat)
 #ifdef __DEBUG
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_MATRIX]);
+        DISP_ERR(ERR_MATRIX);
         return -1;
     }
     if(!mat->pMat)
     {
-        DISP_ERR(g_mat_str[ERR_PMAT]);
+        DISP_ERR(ERR_PMAT);
         return -1;
     }
 #endif //__DEBUG
@@ -138,7 +136,7 @@ _matrix_pt zeros(_MAT_ROW row, _MAT_COL col)
     mat_ret = matrix_create(row, col);
     if(!mat_ret)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -155,7 +153,7 @@ _matrix_pt ones(_MAT_ROW row, _MAT_COL col, ...)
     mat_ret = matrix_create(row, col);
     if(!mat_ret)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 

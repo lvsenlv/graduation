@@ -9,7 +9,6 @@
 #include "matlab.h"
 
 _matrix_pt g_number_mat[10] = {NULL};
-extern _mat_char *g_mat_str[];
 
 /* width : height = 1 : 4
 
@@ -28,7 +27,7 @@ lin1   0 1 1 0    line3
 */
 _matrix_pt template_zero(_MAT_COL wid)
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of zero
+    uint16_t ratio = wid / BASE_WID; //thickness of zero
     if(!ratio)
         return NULL;
     
@@ -36,7 +35,7 @@ _matrix_pt template_zero(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
     
@@ -92,7 +91,7 @@ _matrix_pt template_zero(_MAT_COL wid)
 */
 _matrix_pt template_one(_MAT_COL wid)
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -100,7 +99,7 @@ _matrix_pt template_one(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -143,7 +142,7 @@ line4  0 1 1 1
 */
 _matrix_pt template_two(_MAT_COL wid)
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -151,7 +150,7 @@ _matrix_pt template_two(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -224,7 +223,7 @@ _matrix_pt template_two(_MAT_COL wid)
 */
 _matrix_pt template_three(_MAT_COL wid) //copy from template_two
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -232,7 +231,7 @@ _matrix_pt template_three(_MAT_COL wid) //copy from template_two
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -302,7 +301,7 @@ line1  0 1 1 0
 */
 _matrix_pt template_four(_MAT_COL wid)
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -310,7 +309,7 @@ _matrix_pt template_four(_MAT_COL wid)
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -377,7 +376,7 @@ _matrix_pt template_four(_MAT_COL wid)
 */
 _matrix_pt template_five(_MAT_COL wid) //copy from template_three
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -385,7 +384,7 @@ _matrix_pt template_five(_MAT_COL wid) //copy from template_three
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -458,7 +457,7 @@ _matrix_pt template_five(_MAT_COL wid) //copy from template_three
 */
 _matrix_pt template_six(_MAT_COL wid) //copy from template_five
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -466,7 +465,7 @@ _matrix_pt template_six(_MAT_COL wid) //copy from template_five
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -543,7 +542,7 @@ _matrix_pt template_six(_MAT_COL wid) //copy from template_five
 */
 _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -551,7 +550,7 @@ _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -600,7 +599,7 @@ _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
 */
 _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -608,7 +607,7 @@ _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -689,7 +688,7 @@ _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
 */
 _matrix_pt template_nine(_MAT_COL wid) //copy from template_six
 {
-    _mat_short ratio = wid / BASE_WID; //thickness of num
+    uint16_t ratio = wid / BASE_WID; //thickness of num
     if(!ratio)
         return NULL;
     
@@ -697,7 +696,7 @@ _matrix_pt template_nine(_MAT_COL wid) //copy from template_six
     mat = matrix_create(wid*2, wid);
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
 
@@ -766,7 +765,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_CREATE);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -776,7 +775,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -786,7 +785,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -796,7 +795,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -806,7 +805,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -816,7 +815,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -826,7 +825,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -836,7 +835,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -846,7 +845,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -856,7 +855,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
     if(!mat_ret)
     {
 #ifdef __DEBUG
-        DISP_ERR(g_mat_str[ERR_FATAL]);
+        DISP_ERR(ERR_FATAL);
 #endif //__DEBUG
         return MAT_ERR;
     }
@@ -867,7 +866,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
 
 void template_free(void)
 {
-    _VOL _mat_short i = 0 ;
+    _VOL uint16_t i = 0 ;
 
     for(i = 0; i < 10; i++)
     {
@@ -878,7 +877,7 @@ void template_free(void)
 
 void template_disp(void)
 {
-    _VOL _mat_short i = 0 ;
+    _VOL uint16_t i = 0 ;
 
     for(i = 0; i < 10; i++)
     {

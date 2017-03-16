@@ -6,10 +6,24 @@
  ************************************************************************/
 
 #include "image.h"
+#include "template.h"
 
 int main(int argc, char **argv)
 {
-    image_read("/root/9.bmp");
+    _bmp_pt bmp = NULL;
+    bmp = image_read("/root/test.bmp");
+    if(!bmp)
+    {
+        DISP_ERR("error in image_read");
+        return -1;
+    }
+
+    image_write(bmp, "./object/tmp.bmp");
+    bmp_free(bmp);
+
+    template_create(16);
+    //template_disp();
+    template_free();
     
     return 0;
 }

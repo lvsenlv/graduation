@@ -8,16 +8,8 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-_mat_char *g_mat_str[] = {
-    "error in malloc",
-    "invalid matrix",
-    "invalid pMat",
-    "error in matrix_create",
-    "fatal error",
-};
-
 _STA _matrix_pt matrix_sum_sub(_matrix_pt matA, _matrix_pt matB, 
-    _CON _mat_char symbol);
+    _CON uint8_t symbol);
 _STA _matrix_pt matrix_multiply(_matrix_pt matA, _matrix_pt matB);
 
 _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col)
@@ -34,7 +26,7 @@ _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col)
     mat = (_matrix_pt)malloc(sizeof(_matrix_t));
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_MALLOC]);
+        DISP_ERR(ERR_MALLOC);
         return NULL;
     }
 
@@ -45,7 +37,7 @@ _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col)
     mat->pMat = (_MAT_TYPE *)calloc(row*col, sizeof(_MAT_TYPE));
     if(!mat->pMat)
     {
-        DISP_ERR(g_mat_str[ERR_MALLOC]);
+        DISP_ERR(ERR_MALLOC);
         free(mat);
         mat = NULL;
         return NULL;
@@ -54,7 +46,7 @@ _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col)
     mat->pMat = (_MAT_TYPE *)malloc(sizeof(_MAT_TYPE)*row*col);
     if(!mat->pMat)
     {
-        DISP_ERR(g_mat_str[ERR_MALLOC]);
+        DISP_ERR(ERR_MALLOC);
         free(mat);
         mat = NULL;
         return NULL;
@@ -71,13 +63,13 @@ _MAT_STATUS matrix_set(_matrix_pt mat, _MAT_ROW row,
 
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_MATRIX]);
+        DISP_ERR(ERR_MATRIX);
         return MAT_ERR;
     }
     
     if(!mat->pMat)
     {
-        DISP_ERR(g_mat_str[ERR_PMAT]);
+        DISP_ERR(ERR_PMAT);
         return MAT_ERR;
     }
 
@@ -100,7 +92,7 @@ _MAT_STATUS matrix_disp(_matrix_pt mat)
 #ifdef __DEBUG
     if(!mat)
     {
-        DISP_ERR(g_mat_str[ERR_MATRIX]);
+        DISP_ERR(ERR_MATRIX);
         return MAT_ERR;
     }
 
@@ -137,18 +129,18 @@ void matrix_free(_matrix_pt mat)
 }
 
 _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB, 
-    _CON _mat_char symbol)
+    _CON uint8_t symbol)
 {
 #ifdef __DEBUG
     if((!matA) || (!matB))
     {
-        DISP_ERR(g_mat_str[ERR_MATRIX]);
+        DISP_ERR(ERR_MATRIX);
         return NULL;
     }
 
     if((!matA->pMat) || (!matB->pMat))
     {
-        DISP_ERR(g_mat_str[ERR_PMAT]);
+        DISP_ERR(ERR_PMAT);
         return NULL;
     }
 #endif //__DEBUG
@@ -194,7 +186,7 @@ _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB,
 }
 
 _STA _matrix_pt matrix_sum_sub(_matrix_pt matA, _matrix_pt matB, 
-    _CON _mat_char symbol)
+    _CON uint8_t symbol)
 {
     _MAT_SIZE size = matA->row * matA->col;
     _MAT_SIZE i = 0;
@@ -206,7 +198,7 @@ _STA _matrix_pt matrix_sum_sub(_matrix_pt matA, _matrix_pt matB,
             mat_ret = matrix_create(matA->row, matA->col);
             if(!mat_ret)
             {
-                DISP_ERR(g_mat_str[ERR_CREATE]);
+                DISP_ERR(ERR_CREATE);
                 return NULL;
             }
             
@@ -222,7 +214,7 @@ _STA _matrix_pt matrix_sum_sub(_matrix_pt matA, _matrix_pt matB,
             mat_ret = matrix_create(matA->row, matA->col);
             if(!mat_ret)
             {
-                DISP_ERR(g_mat_str[ERR_CREATE]);
+                DISP_ERR(ERR_CREATE);
                 return NULL;
             }
             
@@ -249,7 +241,7 @@ _STA _matrix_pt matrix_multiply(_matrix_pt matA, _matrix_pt matB)
     mat_ret = matrix_create(rowA, colB);
     if(!mat_ret)
     {
-        DISP_ERR(g_mat_str[ERR_CREATE]);
+        DISP_ERR(ERR_CREATE);
         return NULL;
     }
     

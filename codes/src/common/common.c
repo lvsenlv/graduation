@@ -18,11 +18,11 @@ FILE *g_disp_file = NULL;
 void __attribute__((constructor)) before_main(void)
 {
     START_COUNT;
-    g_disp_file = fopen("./template.txt", "w+");
+    g_disp_file = fopen("./log.txt", "w+");
     if(g_disp_file)
         fclose(g_disp_file);
     
-    g_disp_file = fopen("./template.txt", "a+");
+    g_disp_file = fopen("./log.txt", "a+");
     if(!g_disp_file)
         g_disp_file = stderr;
 }

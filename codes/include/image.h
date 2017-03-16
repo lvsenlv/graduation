@@ -9,13 +9,10 @@
 #define __IMAGE_H
 
 #include "common.h"
+#include "bmp.h"
 
-typedef enum {
-    IMG_OK = 0,
-    IMG_ERR,
-}_IMG_STATUS;
-
-_IMG_STATUS image_read(char *img_file);
+_bmp_pt image_read(int8_t *img_file);
+_G_STATUS image_write(_bmp_pt bmp, int8_t *img_file);
 
 #endif
 

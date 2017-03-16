@@ -10,6 +10,7 @@
 
 #include "common.h"
 
+/*
 typedef     short                           _mat_short;
 typedef     unsigned short                  _mat_ushort;
 typedef     int                             _mat_int;
@@ -20,14 +21,15 @@ typedef     float                           _mat_float;
 typedef     double                          _mat_double;
 typedef     char                            _mat_char;
 typedef     unsigned char                   _mat_uchar;
+*/
 
-#define     _MAT_TYPE                        _mat_int
-#define     _MAT_ROW                         _mat_short
+#define     _MAT_TYPE                        uint8_t
+#define     _MAT_ROW                         uint16_t
 #define     _MAT_COL                         _MAT_ROW
-#define     _MAT_SIZE                        _mat_int
-#define     MAT_ADD                         ((_mat_char)'+')
-#define     MAT_SUB                         ((_mat_char)'-')
-#define     MAT_MUL                         ((_mat_char)'*')
+#define     _MAT_SIZE                        uint32_t
+#define     MAT_ADD                         ((uint8_t)'+')
+#define     MAT_SUB                         ((uint8_t)'-')
+#define     MAT_MUL                         ((uint8_t)'*')
 
 #define     VALUE(mat, nrow, ncol)          (mat->pMat[mat->col*nrow+ncol])
 
@@ -48,14 +50,6 @@ typedef enum {
     MAT_ERR,
 }_MAT_STATUS;
 
-typedef enum {
-    ERR_MALLOC = 0,
-    ERR_MATRIX,
-    ERR_PMAT,
-    ERR_CREATE,
-    ERR_FATAL,
-}_MAT_STR;
-
 #ifdef __DEBUG
 _MAT_STATUS matrix_set(_matrix_pt mat, _MAT_ROW row, 
     _MAT_COL col, _MAT_TYPE elem);
@@ -67,7 +61,7 @@ _matrix_pt matrix_create(_MAT_ROW row, _MAT_COL col);
 _MAT_STATUS matrix_disp(_matrix_pt mat);
 void matrix_free(_matrix_pt mat);
 _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB, 
-    _CON _mat_char symbol);
+    _CON uint8_t symbol);
 
 #endif
 

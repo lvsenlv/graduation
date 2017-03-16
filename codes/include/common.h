@@ -10,9 +10,25 @@
 
 #include <stdio.h>
 
+typedef     char                            int8_t;
+typedef     short                           int16_t;
+typedef     int                             int32_t;
+typedef     long long                       int64_t;
+typedef     unsigned char                   uint8_t;
+typedef     unsigned short                  uint16_t;
+typedef     unsigned int                    uint32_t;
+typedef     unsigned long long              uint64_t;
+
+
 #define     _VOL                            volatile
 #define     _CON                            const
 #define     _STA                            static
+
+#define     ERR_MALLOC                      "error in malloc"
+#define     ERR_MATRIX                      "error in matrix"
+#define     ERR_PMAT                        "error in pMat"
+#define     ERR_CREATE                      "error in create"
+#define     ERR_FATAL                       "fatal error"
 
 #define     DISP_ERR(str) \
             fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
