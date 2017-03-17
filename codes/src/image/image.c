@@ -45,8 +45,7 @@ _bmp_pt image_read(int8_t *img_file)
         return NULL;
     }
 
-    uint32_t ret = 0;
-    ret = fread(head_info, sizeof(uint8_t), HEAD_INFO_SIZE, g_image_fp);
+    uint32_t ret = fread(head_info, sizeof(uint8_t), HEAD_INFO_SIZE, g_image_fp);
     if(HEAD_INFO_SIZE != ret)
     {
         DISP_ERR("error in fread");
@@ -57,10 +56,10 @@ _bmp_pt image_read(int8_t *img_file)
         return NULL;
     }
 
-    _bmp_pt bmp = NULL;
-    bmp = bmp_create();
+    _bmp_pt bmp = bmp_create();
     if(!bmp)
     {
+        DISP_ERR("error in bmp_create");
         fclose(g_image_fp);
         g_image_fp = NULL;
         free(head_info);
@@ -68,31 +67,28 @@ _bmp_pt image_read(int8_t *img_file)
         return NULL;
     }
 
-    _G_STATUS stat;
-    stat = bmp_head_parse(bmp, head_info);
-    if(STAT_ERR == stat)
+    if(bmp_head_parse(bmp, head_info))
     {
-        DISP_ERR("error in bmp_head_parse");
         fclose(g_image_fp);
         g_image_fp = NULL;
         free(head_info);
-        head_info = NULL; //under this case, 
-        bmp_free(bmp);    //bmp->head_info and bmp->data_info != NULL
+        head_info = NULL; //this case, bmp->head_info and bmp->data_info != NULL
+        bmp_free(bmp);
+        bmp = NULL;
     }
 
     _bmp_vital_t vital_info;
 #ifdef __DEBUG
     memset(&vital_info, 0, sizeof(_bmp_vital_t));
 #endif //__DEBUG
-    
-    stat = bmp_get_vital_info(bmp, &vital_info);
-    if(STAT_ERR == stat)
+
+    if(bmp_get_vital_info(bmp, &vital_info))
     {
-        DISP_ERR("error in bmp_get_vital_info");
         fclose(g_image_fp);
         g_image_fp = NULL; //under this case, 
         bmp_free(bmp);     //bmp->head_info->pMat = head_info,
-                           //matrix_free would free it.
+        bmp = NULL;        //matrix_free would free it.
+        return NULL;
     }
 
     uint8_t *info = (uint8_t *)malloc(vital_info.real_size);
@@ -102,6 +98,7 @@ _bmp_pt image_read(int8_t *img_file)
         fclose(g_image_fp);
         g_image_fp = NULL;
         bmp_free(bmp);
+        bmp = NULL;
         return NULL;
     }
 
@@ -112,16 +109,17 @@ _bmp_pt image_read(int8_t *img_file)
         fclose(g_image_fp);
         g_image_fp = NULL;
         bmp_free(bmp);
+        bmp = NULL;
         return NULL;
     }
 
-    stat = bmp_data_parse(bmp, &vital_info, info);
-    if(STAT_ERR == stat)
+    if(bmp_data_parse(bmp, &vital_info, info))
     {
         DISP_ERR("error in bmp_data_parse");
         fclose(g_image_fp);
         g_image_fp = NULL;
         bmp_free(bmp);
+        bmp = NULL;
         return NULL;
     }
 
@@ -133,14 +131,12 @@ _bmp_pt image_read(int8_t *img_file)
 
 _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
 {
-    if(STAT_ERR == bmp_check(bmp))
-        return STAT_ERR;
-
     _bmp_vital_t vital_info;
 #ifdef __DEBUG
     memset(&vital_info, 0, sizeof(_bmp_vital_t));
 #endif //__DEBUG
-    if(STAT_ERR == bmp_get_vital_info(bmp, &vital_info))
+
+    if(bmp_get_vital_info(bmp, &vital_info))
         return STAT_ERR;
 
     g_image_fp = fopen(img_file, "w+");
@@ -160,7 +156,17 @@ _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
         g_image_fp = NULL;
         return STAT_ERR;
     }
-
+    
+#ifdef __DEBUG
+    if(!bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_FATAL);
+        DISP_ERR("invalid bmp image");
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return STAT_ERR;
+    }
+#endif //__DEBUG
     ret = fwrite(bmp->data_info->pMat, sizeof(uint8_t), vital_info.real_size, 
                 g_image_fp);
     if(vital_info.real_size != ret)

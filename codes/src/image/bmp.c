@@ -12,16 +12,14 @@
 
 _bmp_pt bmp_create(void)
 {
-    _bmp_pt bmp = NULL;
-    bmp = (_bmp_pt)malloc(sizeof(_bmp_t));
+    _bmp_pt bmp = (_bmp_pt)malloc(sizeof(_bmp_t));
     if(!bmp)
     {
         DISP_ERR(ERR_MALLOC);
         return NULL;
     }
-    bmp->head_info = NULL;
-    bmp->data_info = NULL;
     
+    bmp->data_info = NULL;
     bmp->head_info = (_matrix_pt)malloc(sizeof(_matrix_t));
     if(!bmp->head_info)
     {
@@ -33,7 +31,7 @@ _bmp_pt bmp_create(void)
     bmp->head_info->pMat = NULL;
     
     bmp->data_info = (_matrix_pt)malloc(sizeof(_matrix_t));
-    if(!bmp->head_info)
+    if(!bmp->data_info)
     {
         DISP_ERR(ERR_MALLOC);
         free(bmp->head_info);
@@ -49,27 +47,28 @@ _bmp_pt bmp_create(void)
 
 _G_STATUS bmp_head_parse(_bmp_pt bmp, uint8_t *ptr)
 {
-    if( ('B' != ptr[0]) || ('M' != ptr[1]) )
+#ifdef __DEBUG
+    if(!ptr)
     {
-        DISP_ERR("not a bmp image");
+        DISP_ERR("invalid ptr");
         return STAT_ERR;
     }
     
-#ifdef __DEBUG
     if(!bmp || !bmp->head_info || !bmp->data_info)
     {
         DISP_ERR(ERR_FATAL);
         DISP_ERR("use bmp_create firstly");
         return STAT_ERR;
     }
-
-    if(!ptr)
-    {
-        DISP_ERR("invalid ptr");
-        return STAT_ERR;
-    }
 #endif //__DEBUG
 
+    if( ('B' != ptr[0]) || ('M' != ptr[1]) )
+    {
+        
+        DISP_ERR("not a bmp image");
+        return STAT_ERR;
+    }
+    
     bmp->head_info->pMat = ptr;
     bmp->head_info->row = 1;
     bmp->head_info->col = HEAD_INFO_SIZE;
@@ -255,6 +254,7 @@ void bmp_free(_bmp_pt bmp)
     {
         matrix_free(bmp->head_info);
         matrix_free(bmp->data_info);
+        free(bmp);
     }
 }
 
@@ -264,7 +264,7 @@ _G_STATUS bmp_get_vital_info(_bmp_pt bmp, _bmp_vital_pt vital)
     if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
     {
         DISP_ERR(ERR_FATAL);
-        DISP_ERR("use bmp_head_parse firstly");
+        DISP_ERR("invalid bmp image");
         return STAT_ERR;
     }
 #endif //__DEBUG
@@ -323,10 +323,16 @@ _G_STATUS bmp_data_parse(_bmp_pt bmp, _bmp_vital_pt vital,
             uint8_t *ptr)
 {
 #ifdef __DEBUG
-    if(!bmp || !bmp->head_info || !bmp->data_info)
+    if(!ptr)
+    {
+        DISP_ERR("invalid ptr");
+        return STAT_ERR;
+    }
+    
+    if(!bmp || !bmp->data_info)
     {
         DISP_ERR(ERR_FATAL);
-        DISP_ERR("use bmp_create firstly");
+        DISP_ERR("invalid bmp image");
         return STAT_ERR;
     }
 
@@ -334,12 +340,6 @@ _G_STATUS bmp_data_parse(_bmp_pt bmp, _bmp_vital_pt vital,
     {
         DISP_ERR(ERR_FATAL);
         DISP_ERR("use bmp_get_vital_info firstly");
-        return STAT_ERR;
-    }
-
-    if(!ptr)
-    {
-        DISP_ERR("invalid ptr");
         return STAT_ERR;
     }
 #endif //__DEBUG
@@ -372,4 +372,117 @@ _G_STATUS bmp_check(_bmp_pt bmp)
     }
 
     return STAT_OK;
+}
+
+_bmp_pt bmp_convert_gray(_bmp_pt bmp)
+{
+    _bmp_vital_t vital;
+#ifdef __DEBUG
+    memset(&vital_info, 0, sizeof(_bmp_vital_t));
+#endif //__DEBUG
+    if(bmp_get_vital_info(bmp, &vital))
+        return NULL;
+
+    if(vital.bit_count != 24)
+    {
+        DISP_ERR("only support 24 bits depth bmp image");
+        return NULL;
+    }
+
+#ifdef __DEBUG
+    if(!bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_FATAL);
+        DISP_ERR("invalid bmp image");
+        return NULL;
+    }
+#endif //__DEBUG
+
+    _bmp_pt bmp_ret = bmp_create();
+    if(!bmp_ret)
+    {
+        DISP_ERR("error in bmp_create");
+        return NULL;
+    }
+
+    uint8_t *ret_head_info = (uint8_t *)malloc(HEAD_INFO_SIZE);
+    if(!ret_head_info)
+    {
+        DISP_ERR(ERR_MALLOC);
+        bmp_free(bmp_ret);
+        bmp_ret = NULL;
+        return NULL;
+    }
+    bmp_ret->head_info->pMat = ret_head_info;
+    bmp_ret->head_info->row = 1;
+    bmp_ret->head_info->col = HEAD_INFO_SIZE;
+    
+    uint8_t *info = (uint8_t *)malloc(vital.real_size);
+    if(!info)
+    {
+        DISP_ERR(ERR_MALLOC);
+        bmp_free(bmp_ret);
+        bmp_ret = NULL;
+        return NULL;
+    }
+    bmp_ret->data_info->pMat = info;
+    bmp_ret->data_info->row = vital.height;
+    bmp_ret->data_info->col = vital.real_width;
+
+
+    //copy head info to new bmp image
+    uint32_t i = 0;
+    uint8_t *tmp_ptr = bmp->head_info->pMat;
+    for(i = 0; i < HEAD_INFO_SIZE; i++)
+    {
+        *ret_head_info++ = *tmp_ptr++;
+    }
+
+    //convert to gray image, algorithm: Gray = (R*38 + G*75 + B*15) >> 7
+    tmp_ptr = bmp->data_info->pMat;
+    uint32_t j = 0;
+    uint32_t fill_pixel_num = 
+        vital.real_width - ((vital.width * vital.bit_count) >> 3);
+    uint8_t gray = 0;
+
+    //if fill_pixel_num != 0 , must fill pixels for 4 byte alignment
+    if(0 == fill_pixel_num) 
+    {
+        for(i = 0; i < vital.height; i++)
+        {
+            for(j = 0; j < vital.width; j++)
+            {
+                //data save by B,G,R format
+                gray = (tmp_ptr[2]*38 + tmp_ptr[1]*75 + tmp_ptr[0]*15) >> 7;
+                *info++ = gray;
+                *info++ = gray;
+                *info++ = gray;
+                tmp_ptr += 3;
+            }
+        }
+    }
+    else
+    {
+        for(i = 0; i < vital.height; i++)
+        {
+            for(j = 0; j < vital.width; j++)
+            {
+                //data save by B,G,R format
+                gray = (tmp_ptr[2]*38 + tmp_ptr[1]*75 + tmp_ptr[0]*15) >> 7;
+                *info++ = gray;
+                *info++ = gray;
+                *info++ = gray;
+                tmp_ptr += 3;
+            }
+
+            //fill pixel due to align of 4 byte
+            for(j = 0; j < fill_pixel_num; j++)
+            {
+                *info++ = 0;
+                tmp_ptr ++;
+            }
+        }
+    }
+    
+    return bmp_ret;
 }

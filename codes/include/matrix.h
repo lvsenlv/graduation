@@ -43,7 +43,7 @@ typedef struct _matrix_truct_info {
     _MAT_COL col;
 }_matrix_t, *_matrix_pt;
 
-#define _matrix _matrix_t;
+#define _matrix _matrix_t
 
 typedef enum {
     MAT_OK = 0,

@@ -43,11 +43,11 @@ typedef struct bmp_info {
 #endif
 
 typedef struct bmp_info {
-    _matrix_pt head_info;                //this info contains format, main_info and plus_info
+    _matrix_pt head_info;       //this info contains format, main_info and plus_info
     _matrix_pt data_info;
 }_bmp_t, *_bmp_pt;
 
-typedef struct bmp_vital_info {
+typedef struct bmp_vital_info { //use memset to initialize this struct after creating
     uint32_t width;
     uint32_t height;
     uint16_t bit_count;
@@ -64,6 +64,7 @@ _G_STATUS bmp_get_vital_info(_bmp_pt bmp, _bmp_vital_pt vital);
 _G_STATUS bmp_data_parse(_bmp_pt bmp, _bmp_vital_pt vital, 
             uint8_t *ptr);
 _G_STATUS bmp_check(_bmp_pt bmp);
+_bmp_pt bmp_convert_gray(_bmp_pt bmp);
 
 
 #endif

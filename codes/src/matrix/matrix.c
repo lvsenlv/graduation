@@ -105,7 +105,7 @@ _MAT_STATUS matrix_disp(_matrix_pt mat)
     {
         for(j = 0; j < mat->col; j++)
         {
-            DISP("%d ", VALUE(mat, i, j));
+            DISP("%x ", VALUE(mat, i, j));
         }
         DISP("\n");
     }
@@ -121,10 +121,8 @@ void matrix_free(_matrix_pt mat)
         if(mat->pMat)
         {
             free(mat->pMat);
-            mat->pMat = NULL;
         }
         free(mat);
-        mat = NULL;
     }
 }
 

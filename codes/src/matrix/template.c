@@ -6,7 +6,6 @@
  ************************************************************************/
 
 #include "template.h"
-#include "matlab.h"
 
 _matrix_pt g_number_mat[10] = {NULL};
 
@@ -865,12 +864,24 @@ _MAT_STATUS template_create(_MAT_COL wid)
 }
 
 void template_free(void)
-{
+{ 
     _VOL uint16_t i = 0 ;
 
     for(i = 0; i < 10; i++)
     {
-        matrix_free(g_number_mat[i]);
+        /*
+        //fllowing action costs several times due to access memory
+        if(g_number_mat[i])
+        {
+            if(g_number_mat[i]->pMat)
+            {
+                free(g_number_mat[i]->pMat);
+            }
+            free(g_number_mat[i]);
+        }*/
+        
+        //fllowing action costs several times due to push and pop stack
+        matrix_free(g_number_mat[i]);  
         g_number_mat[i] = NULL;
     }
 }
