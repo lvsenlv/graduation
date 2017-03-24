@@ -144,13 +144,30 @@ _matrix_pt zeros(_MAT_ROW row, _MAT_COL col)
     
     return mat_ret;
 }
-#endif //__DEBUG
 
+_matrix_pt ones(_MAT_ROW row, _MAT_COL col)
+{
+    _matrix_pt mat_ret = matrix_create(row, col);
+    if(!mat_ret)
+    {
+        DISP_ERR(ERR_CREATE);
+        return NULL;
+    }
+    
+    _MAT_SIZE size = row * col;
+    _MAT_SIZE i = 0;
+    for(i = 0; i < size ; i++)
+    {
+        mat_ret->pMat[i] = 1;
+    }
+    
+    return mat_ret;
+}
+
+#else //__DEBUG
 _matrix_pt ones(_MAT_ROW row, _MAT_COL col, ...)
 {
-    _matrix_pt mat_ret = NULL;
-    
-    mat_ret = matrix_create(row, col);
+    _matrix_pt mat_ret = matrix_create(row, col);
     if(!mat_ret)
     {
         DISP_ERR(ERR_CREATE);
@@ -175,4 +192,4 @@ _matrix_pt ones(_MAT_ROW row, _MAT_COL col, ...)
     va_end(arg_ptr);
     return mat_ret;
 }
-
+#endif //__DEBUG

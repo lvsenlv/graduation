@@ -29,6 +29,7 @@ typedef     unsigned long long              uint64_t;
 #define     ERR_PMAT                        "error in pMat"
 #define     ERR_CREATE                      "error in create"
 #define     ERR_FATAL                       "fatal error"
+#define     ERR_BMP                         "invalid bmp image"
 
 #define     DISP_ERR(str) \
             fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)

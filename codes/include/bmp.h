@@ -12,7 +12,17 @@
 #include "matrix.h"
 
 #define     HEAD_INFO_SIZE                  54
-#define     COUNT_REAL_WIDTH(bits)          ((((bits)+31)/32)*4)
+#define     COUNT_REAL_WIDTH(bits)          ((((bits)+31)>>5)<<2)
+#define     FILTER_MODEL_SIZE               3
+#define     FILTER_OFFSET                   (FILTER_MODEL_SIZE >> 1)
+#define     FILTER_OFFSET_PLUS              ((FILTER_MODEL_SIZE*FILTER_MODEL_SIZE) >> 1)
+#define     MIDDLE(a, b, c) \
+            (   (a)>(b)   \
+                 ?   \
+                    (    (a)>(c)   ?   ( (b)>(c) ? (b):(c) )    :   (a)    )    \
+                 :    \
+                    (    (b)>(c)   ?   ( (a)>(c) ? (a):(c) )    :   (b)    )    \
+            )
 
 #if 0
 typedef struct bmp_head_main_info {
@@ -42,11 +52,6 @@ typedef struct bmp_info {
 }_bmp_t, *_bmp_pt;
 #endif
 
-typedef struct bmp_info {
-    _matrix_pt head_info;       //this info contains format, main_info and plus_info
-    _matrix_pt data_info;
-}_bmp_t, *_bmp_pt;
-
 typedef struct bmp_vital_info { //use memset to initialize this struct after creating
     uint32_t width;
     uint32_t height;
@@ -55,16 +60,19 @@ typedef struct bmp_vital_info { //use memset to initialize this struct after cre
     uint32_t real_width;
 }_bmp_vital_t, *_bmp_vital_pt;
 
+typedef struct bmp_info {
+    _matrix_pt head_info;       //this info contains format, main_info and plus_info
+    _bmp_vital_pt vital_info;
+    _matrix_pt data_info;
+}_bmp_t, *_bmp_pt;
+
 _bmp_pt bmp_create(void);
 _G_STATUS bmp_head_parse(_bmp_pt bmp, uint8_t *ptr);
 void bmp_free(_bmp_pt bmp);
-//void bmp_info_disp(void);
-void bmp_viatl_info_disp(_bmp_vital_pt vital);
-_G_STATUS bmp_get_vital_info(_bmp_pt bmp, _bmp_vital_pt vital);
-_G_STATUS bmp_data_parse(_bmp_pt bmp, _bmp_vital_pt vital, 
-            uint8_t *ptr);
-_G_STATUS bmp_check(_bmp_pt bmp);
+void bmp_viatl_info_disp(_bmp_pt bmp);
+_G_STATUS bmp_data_parse(_bmp_pt bmp, uint8_t *ptr);
 _bmp_pt bmp_convert_gray(_bmp_pt bmp);
+_G_STATUS bmp_median_filter(_bmp_pt bmp);
 
 
 #endif

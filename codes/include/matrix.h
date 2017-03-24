@@ -24,7 +24,7 @@ typedef     unsigned char                   _mat_uchar;
 */
 
 #define     _MAT_TYPE                        uint8_t
-#define     _MAT_ROW                         uint16_t
+#define     _MAT_ROW                         uint32_t
 #define     _MAT_COL                         _MAT_ROW
 #define     _MAT_SIZE                        uint32_t
 #define     MAT_ADD                         ((uint8_t)'+')

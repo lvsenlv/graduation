@@ -8,17 +8,16 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "image.h"
-#include <string.h>
 
 FILE *g_image_fp = NULL;
 
 _bmp_pt image_read(int8_t *img_file)
 {
-    if(access(img_file, F_OK))
+    /*if(access(img_file, F_OK))
     {
         DISP_ERR_PLUS("[%s][%d]: %s does not exist \n", __func__, __LINE__, img_file);
         return NULL;
-    }
+    }*/
 
     g_image_fp = fopen(img_file, "r");
     if(!g_image_fp)
@@ -35,7 +34,6 @@ _bmp_pt image_read(int8_t *img_file)
     }
 
     //parse bmp format
-    
     uint8_t *head_info = (uint8_t *)malloc(HEAD_INFO_SIZE);
     if(!head_info)
     {
@@ -77,22 +75,9 @@ _bmp_pt image_read(int8_t *img_file)
         bmp = NULL;
     }
 
-    _bmp_vital_t vital_info;
-#ifdef __DEBUG
-    memset(&vital_info, 0, sizeof(_bmp_vital_t));
-#endif //__DEBUG
-
-    if(bmp_get_vital_info(bmp, &vital_info))
-    {
-        fclose(g_image_fp);
-        g_image_fp = NULL; //under this case, 
-        bmp_free(bmp);     //bmp->head_info->pMat = head_info,
-        bmp = NULL;        //matrix_free would free it.
-        return NULL;
-    }
-
-    uint8_t *info = (uint8_t *)malloc(vital_info.real_size);
-    if(!info)
+    uint32_t real_size = bmp->vital_info->real_size;
+    uint8_t *data_info = (uint8_t *)malloc(real_size);
+    if(!data_info)
     {
         DISP_ERR(ERR_MALLOC);
         fclose(g_image_fp);
@@ -102,8 +87,8 @@ _bmp_pt image_read(int8_t *img_file)
         return NULL;
     }
 
-    ret = fread(info, sizeof(uint8_t), vital_info.real_size, g_image_fp);
-    if(vital_info.real_size != ret)
+    ret = fread(data_info, sizeof(uint8_t), real_size, g_image_fp);
+    if(real_size != ret)
     {
         DISP_ERR("error in fread");
         fclose(g_image_fp);
@@ -113,7 +98,7 @@ _bmp_pt image_read(int8_t *img_file)
         return NULL;
     }
 
-    if(bmp_data_parse(bmp, &vital_info, info))
+    if(bmp_data_parse(bmp, data_info))
     {
         DISP_ERR("error in bmp_data_parse");
         fclose(g_image_fp);
@@ -131,13 +116,19 @@ _bmp_pt image_read(int8_t *img_file)
 
 _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
 {
-    _bmp_vital_t vital_info;
 #ifdef __DEBUG
-    memset(&vital_info, 0, sizeof(_bmp_vital_t));
-#endif //__DEBUG
-
-    if(bmp_get_vital_info(bmp, &vital_info))
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
+    {
+        DISP_ERR(ERR_BMP);
         return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
 
     g_image_fp = fopen(img_file, "w+");
     if(!g_image_fp)
@@ -157,19 +148,9 @@ _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
         return STAT_ERR;
     }
     
-#ifdef __DEBUG
-    if(!bmp->data_info || !bmp->data_info->pMat)
-    {
-        DISP_ERR(ERR_FATAL);
-        DISP_ERR("invalid bmp image");
-        fclose(g_image_fp);
-        g_image_fp = NULL;
-        return STAT_ERR;
-    }
-#endif //__DEBUG
-    ret = fwrite(bmp->data_info->pMat, sizeof(uint8_t), vital_info.real_size, 
-                g_image_fp);
-    if(vital_info.real_size != ret)
+    ret = fwrite(bmp->data_info->pMat, sizeof(uint8_t), 
+                bmp->vital_info->real_size, g_image_fp);
+    if(bmp->vital_info->real_size != ret)
     {
         DISP_ERR("error in fwrite");
         fclose(g_image_fp);
@@ -187,6 +168,108 @@ _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
     system(buf);
 #endif //__LINUX
 #endif
+
+    return STAT_OK;
+}
+
+_G_STATUS image_write_plus(_bmp_pt bmp, int8_t *img_file)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    g_image_fp = fopen(img_file, "w+");
+    if(!g_image_fp)
+    {
+        DISP_ERR("error in fopen");
+        return STAT_ERR;
+    }
+
+    uint32_t ret = 0;
+    ret = fwrite(bmp->head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
+                g_image_fp);
+    if(HEAD_INFO_SIZE != ret)
+    {
+        DISP_ERR("error in fwrite");
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return STAT_ERR;
+    }
+
+    _bmp_vital_pt vital = bmp->vital_info; 
+    uint32_t real_size = vital->real_size;
+    uint8_t *buf = (uint8_t *)malloc(real_size);
+    if(!buf)
+    {
+        DISP_ERR(ERR_MALLOC);
+        return STAT_ERR;
+    }
+    
+    uint32_t width = vital->width;
+    uint32_t height = vital->height;
+    uint32_t fill_pixel_num = 
+        vital->real_width - ((width * vital->bit_count) >> 3);
+    uint32_t i = 0, j = 0;
+    uint8_t *data_info = bmp->data_info->pMat;
+    uint8_t *tmp_ptr = buf;
+
+    if(0 == fill_pixel_num) 
+    {
+        for(i = 0; i < height; i++)
+        {
+            for(j = 0; j < width; j++)
+            {
+                //data of G and R are the same with B
+                *tmp_ptr++  = *data_info;
+                *tmp_ptr++  = *data_info;
+                *tmp_ptr++  = *data_info++;
+            }    
+        }
+        
+    }
+    else
+    {
+        for(i = 0; i < height; i++)
+        {
+            for(j = 0; j < width; j++)
+            {
+                //data of G and R are the same with B
+                *tmp_ptr++  = *data_info;
+                *tmp_ptr++  = *data_info;
+                *tmp_ptr++  = *data_info++;
+            } 
+            
+            //fill pixel due to align of 4 byte
+            for(j = 0; j < fill_pixel_num; j++)
+            {
+                *tmp_ptr++ = 0;
+            }
+        }
+    }
+
+    ret = fwrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    if(real_size != ret)
+    {
+        DISP_ERR("error in fwrite");
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        free(buf);
+        return STAT_ERR;
+    }
+    
+    fclose(g_image_fp);
+    g_image_fp = NULL;
+    free(buf);
 
     return STAT_OK;
 }

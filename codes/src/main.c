@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
     _bmp_pt bmp = NULL;
-    bmp = image_read("/root/pictures/9.bmp");
+    bmp = image_read("/root/pictures/pic8.bmp");
     if(!bmp)
     {
         DISP_ERR("error in image_read");
@@ -26,8 +26,10 @@ int main(int argc, char **argv)
         bmp_free(bmp);
         return -1;
     }
-
-    image_write(bmp_gray_ret, "./object/gray.bmp");
+    image_write_plus(bmp_gray_ret, "./object/gray.bmp");
+    bmp_median_filter(bmp_gray_ret);
+    image_write_plus(bmp_gray_ret, "./object/gray_filter.bmp");
+    
     bmp_free(bmp);
     bmp_free(bmp_gray_ret); 
 

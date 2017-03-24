@@ -12,7 +12,12 @@
 #include "bmp.h"
 
 _bmp_pt image_read(int8_t *img_file);
+
+//write normal bmp image to file
 _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file);
+
+//write gray bmp image to file
+_G_STATUS image_write_plus(_bmp_pt bmp, int8_t *img_file);
 
 #endif
 
