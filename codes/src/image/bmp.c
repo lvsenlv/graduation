@@ -540,3 +540,89 @@ _G_STATUS bmp_median_filter(_bmp_pt bmp)
     DISP("%d \n", total_times);
     return STAT_OK;
 }
+
+_G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    uint32_t size = bmp->vital_info->height * bmp->vital_info->width;
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    float histogram[256] = {0};
+    uint32_t i = 0;
+    
+    for(i = 0; i < size; i++)
+    {
+        histogram[data_ptr[i]]++;
+    }
+
+    float avgValue = 0;
+    for(i = 0; i < 256; i++)  
+    {  
+        histogram[i] = histogram[i] / size;
+        avgValue += i*histogram[i];
+    }
+
+    float var = 0;
+    float var_max = 0;
+    float wk = 0, uk = 0, ut = 0; 
+    
+    for(i = 0; i < 256; i++)
+    {
+        wk += histogram[i];  
+        uk += i * histogram[i];       
+  
+        ut = avgValue*wk - uk;  
+        var = ut*ut / (wk * (1 - wk));    
+          
+        if(var > var_max)  
+        {  
+            var_max = var;  
+            *threshold = i;  
+        }         
+    }
+    
+    return STAT_OK;
+}
+
+_G_STATUS bmp_convert_binary(_bmp_pt bmp, uint8_t threshold)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    uint32_t size = bmp->vital_info->width * bmp->vital_info->height;
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    uint32_t i = 0;
+
+    for(i = 0; i < size; i++)
+    {
+        *data_ptr = ((*data_ptr < threshold) ? 0x0 : 0xFF);
+        data_ptr++;
+    }
+    //matrix_disp(bmp->data_info);
+
+    return STAT_OK;
+}
+

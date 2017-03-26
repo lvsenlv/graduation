@@ -73,6 +73,8 @@ void bmp_viatl_info_disp(_bmp_pt bmp);
 _G_STATUS bmp_data_parse(_bmp_pt bmp, uint8_t *ptr);
 _bmp_pt bmp_convert_gray(_bmp_pt bmp);
 _G_STATUS bmp_median_filter(_bmp_pt bmp);
+_G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold);
+_G_STATUS bmp_convert_binary(_bmp_pt bmp, uint8_t threshold);
 
 
 #endif

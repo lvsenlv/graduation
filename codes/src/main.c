@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
     _bmp_pt bmp = NULL;
-    bmp = image_read("/root/pictures/pic8.bmp");
+    bmp = image_read("/root/pictures/pic1.bmp");
     if(!bmp)
     {
         DISP_ERR("error in image_read");
@@ -26,9 +26,33 @@ int main(int argc, char **argv)
         bmp_free(bmp);
         return -1;
     }
-    image_write_plus(bmp_gray_ret, "./object/gray.bmp");
-    bmp_median_filter(bmp_gray_ret);
-    image_write_plus(bmp_gray_ret, "./object/gray_filter.bmp");
+    
+    if(bmp_median_filter(bmp_gray_ret))
+    {
+        DISP_ERR("error in bmp_median_filter");
+        bmp_free(bmp);
+        bmp_free(bmp_gray_ret);
+        return -1;
+    }
+
+    uint8_t threshold = 0;
+    if(bmp_get_threshold(bmp_gray_ret, &threshold))
+    {
+        DISP_ERR("error in bmp_get_threshold");
+        bmp_free(bmp);
+        bmp_free(bmp_gray_ret);
+        return -1;
+    }
+
+    if(bmp_convert_binary(bmp_gray_ret, threshold))
+    {
+        DISP_ERR("error in bmp_convert_binary");
+        bmp_free(bmp);
+        bmp_free(bmp_gray_ret);
+        return -1;
+    }
+    
+    image_write_plus(bmp_gray_ret, "./object/binary.bmp");
     
     bmp_free(bmp);
     bmp_free(bmp_gray_ret); 
