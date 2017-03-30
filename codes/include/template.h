@@ -11,6 +11,10 @@
 #include "matrix.h"
 
 #define     BASE_WID                        4
+#define     FOREGROUND                      1
+#define     BACKGROUND                      0
+
+extern _matrix_pt g_number_mat[10];
 
 _matrix_pt template_zero(_MAT_COL wid);
 _matrix_pt template_one(_MAT_COL wid);

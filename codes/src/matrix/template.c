@@ -13,14 +13,14 @@ _matrix_pt g_number_mat[10] = {NULL};
 
         line2
         
-       0 0 0 0
-       0 1 1 0
-       0 1 1 0
-       0 1 1 0
-lin1   0 1 1 0    line3
-       0 1 1 0
-       0 1 1 0
-       0 0 0 0
+       1 1 1 1
+       1 0 0 1
+       1 0 0 1
+       1 0 0 1
+lin1   1 0 0 1    line3
+       1 0 0 1
+       1 0 0 1
+       1 1 1 1
        
         line4
 */
@@ -47,30 +47,30 @@ _matrix_pt template_zero(_MAT_COL wid)
 
     for(i = 0; i < size; i++) //draw line2
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg; i++)
     {
         for(j = 0; j < ratio; j++) //draw line1
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
 
         for(j = 0; j < col_bg; j++) //draw background
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
 
         for(j = 0; j < ratio; j++) //draw line3
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line4
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
     
     return mat;    
@@ -78,14 +78,14 @@ _matrix_pt template_zero(_MAT_COL wid)
 
 /* width : height = 1 : 4
         
-       1 1 1 0          
-       1 1 1 0      |   direction
-       1 1 1 0      |   
-       1 1 1 0      |
-       1 1 1 0      |   draw the row one by one
-       1 1 1 0      |
-       1 1 1 0      V
-       1 1 1 0
+       0 0 0 1          
+       0 0 0 1      |   direction
+       0 0 0 1      |   
+       0 0 0 1      |
+       0 0 0 1      |   draw the row one by one
+       0 0 0 1      |
+       0 0 0 1      V
+       0 0 0 1
        
 */
 _matrix_pt template_one(_MAT_COL wid)
@@ -112,12 +112,12 @@ _matrix_pt template_one(_MAT_COL wid)
     {
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
@@ -128,14 +128,14 @@ _matrix_pt template_one(_MAT_COL wid)
 
         line1
         
-       0 0 0 0
-       1 1 1 0
-       1 1 1 0     line2
-       1 1 1 0
-       0 0 0 0     line3
-       0 1 1 1
-line4  0 1 1 1
-       0 0 0 0
+       1 1 1 1
+       0 0 0 1
+       0 0 0 1     line2
+       0 0 0 1
+       1 1 1 1     line3
+       1 0 0 0
+line4  1 0 0 0
+       1 1 1 1
 
         line5
 */
@@ -159,12 +159,12 @@ _matrix_pt template_two(_MAT_COL wid)
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio*3)/2; //low half of row of background
-    _MAT_ROW row_bg_hig_hf = 
-       (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio*3 - row_bg_low_hf; //first half of row of background
     _MAT_COL col_bg = wid - ratio;
     _MAT_COL j = 0;
 
@@ -172,34 +172,34 @@ _matrix_pt template_two(_MAT_COL wid)
     {
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
         
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line5
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     return mat;
@@ -209,14 +209,14 @@ _matrix_pt template_two(_MAT_COL wid)
 
         line1
         
-       0 0 0 0
-       1 1 1 0
-       1 1 1 0     line2
-       1 1 1 0
-       0 0 0 0     line3
-       1 1 1 0
-       1 1 1 0     line4
-       0 0 0 0
+       1 1 1 1
+       0 0 0 1
+       0 0 0 1     line2
+       0 0 0 1
+       1 1 1 1     line3
+       0 0 0 1
+       0 0 0 1     line4
+       1 1 1 1
 
         line5
 */
@@ -240,12 +240,12 @@ _matrix_pt template_three(_MAT_COL wid) //copy from template_two
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio*3)/2; //low half of row of background
-    _MAT_ROW row_bg_hig_hf = 
-       (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio*3 - row_bg_low_hf; //first half of row of background
     _MAT_COL col_bg = wid - ratio;
     _MAT_COL j = 0;
 
@@ -253,34 +253,34 @@ _matrix_pt template_three(_MAT_COL wid) //copy from template_two
     {
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
         
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line5
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     return mat;
@@ -288,14 +288,14 @@ _matrix_pt template_three(_MAT_COL wid) //copy from template_two
 
 /* width : height = 1 : 4
 
-line1  0 1 1 0
-  |    0 1 1 0
-  |    0 1 1 0
-  |    0 1 1 0
-  V    0 0 0 0    line3
-       1 1 1 0
-       1 1 1 0    line4
-       1 1 1 0
+line1  1 0 0 1
+  |    1 0 0 1
+  |    1 0 0 1
+  |    1 0 0 1
+  V    1 1 1 1    line3
+       0 0 0 1
+       0 0 0 1    line4
+       0 0 0 1
        
 */
 _matrix_pt template_four(_MAT_COL wid)
@@ -312,9 +312,10 @@ _matrix_pt template_four(_MAT_COL wid)
         return NULL;
     }
 
+    //_MAT_ROW row_bg_low_hf = (wid*2 - ratio)/2; //low row of background
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio)/2; //low row of background
-    _MAT_ROW row_bg_hig_hf = 
-        (wid%8) ? row_bg_low_hf + 1 : row_bg_low_hf; //first row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ? row_bg_low_hf + 1 : row_bg_low_hf; //first row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio - row_bg_low_hf; //first row of background
     _MAT_COL col_bg_hig_hf = wid - ratio*2; //first col of background
     _MAT_COL col_bg_low_hf = wid - ratio; //low col of background
     _MAT_ROW i = 0;
@@ -326,32 +327,32 @@ _matrix_pt template_four(_MAT_COL wid)
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg_hig_hf; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
     
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < col_bg_low_hf; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
     
@@ -362,14 +363,14 @@ _matrix_pt template_four(_MAT_COL wid)
 
         line1
         
-       0 0 0 0
-       0 1 1 1
-       0 1 1 1     line2
-       0 1 1 1
-       0 0 0 0     line3
-       1 1 1 0
-       1 1 1 0     line4
-       0 0 0 0
+       1 1 1 1
+       1 0 0 0
+       1 0 0 0     line2
+       1 0 0 0
+       1 1 1 1     line3
+       0 0 0 1
+       0 0 0 1     line4
+       1 1 1 1
 
         line5
 */
@@ -393,12 +394,12 @@ _matrix_pt template_five(_MAT_COL wid) //copy from template_three
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio*3)/2; //low half of row of background
-    _MAT_ROW row_bg_hig_hf = 
-       (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio*3 - row_bg_low_hf; //first half of row of background
     _MAT_COL col_bg = wid - ratio;
     _MAT_COL j = 0;
 
@@ -406,34 +407,34 @@ _matrix_pt template_five(_MAT_COL wid) //copy from template_three
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
     }
         
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line5
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     return mat;
@@ -443,14 +444,14 @@ _matrix_pt template_five(_MAT_COL wid) //copy from template_three
 
         line1
         
-       0 0 0 0
-       0 1 1 1
-       0 1 1 1     line2
-       0 1 1 1
-       0 0 0 0     line3
-       0 1 1 0
-       0 1 1 0     line4
-       0 0 0 0
+       1 1 1 1
+       1 0 0 0
+       1 0 0 0     line2
+       1 0 0 0
+       1 1 1 1     line3
+       1 0 0 1
+       1 0 0 1     line4
+       1 1 1 1
 
         line5
 */
@@ -474,12 +475,12 @@ _matrix_pt template_six(_MAT_COL wid) //copy from template_five
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio*3)/2; //low half of row of background
-    _MAT_ROW row_bg_hig_hf = 
-       (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio*3 - row_bg_low_hf; //first half of row of background
     _MAT_COL col_bg_hig_hf = wid - ratio; //first half of col of background
     _MAT_COL col_bg_low_hf = wid - ratio*2; //low half of col of background
     _MAT_COL j = 0;
@@ -488,38 +489,38 @@ _matrix_pt template_six(_MAT_COL wid) //copy from template_five
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg_hig_hf; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
     }
         
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg_low_hf; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line5
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     return mat;
@@ -529,14 +530,14 @@ _matrix_pt template_six(_MAT_COL wid) //copy from template_five
 
         line1  
         
-       0 0 0 0          
-       1 1 1 0    line2   
-       1 1 1 0      |   direction
-       1 1 1 0      |   
-       1 1 1 0      |   draw the row one by one
-       1 1 1 0      |
-       1 1 1 0      V
-       1 1 1 0
+       1 1 1 1          
+       0 0 0 1    line2   
+       0 0 0 1      |   direction
+       0 0 0 1      |   
+       0 0 0 1      |   draw the row one by one
+       0 0 0 1      |
+       0 0 0 1      V
+       0 0 0 1
        
 */
 _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
@@ -562,19 +563,19 @@ _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
     
     for(i = 0; i < row; i++) //draw line2
     {
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
@@ -585,14 +586,14 @@ _matrix_pt template_seven(_MAT_COL wid) //copy from template_one
 
         line1
         
-       0 0 0 0
-       0 1 1 0
-       0 1 1 0     line2
-       0 1 1 0
-       0 0 0 0     line3
-       0 1 1 0
-       0 1 1 0     line4
-       0 0 0 0
+       1 1 1 1
+       1 0 0 1
+       1 0 0 1     line2
+       1 0 0 1
+       1 1 1 1     line3
+       1 0 0 1
+       1 0 0 1     line4
+       1 1 1 1
 
         line5
 */
@@ -616,12 +617,12 @@ _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio*3)/2; //low half of row of background
-    _MAT_ROW row_bg_hig_hf = 
-       (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio*3 - row_bg_low_hf; //first half of row of background
     _MAT_COL col_bg = wid - ratio*2; //col of background
     _MAT_COL j = 0;
 
@@ -629,42 +630,42 @@ _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
         
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line5
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     return mat;
@@ -674,14 +675,14 @@ _matrix_pt template_eight(_MAT_COL wid) //copy from template_six
 
         line1
         
-       0 0 0 0
-       0 1 1 0
-       0 1 1 0     line2
-       0 1 1 0
-       0 0 0 0     line3
-       1 1 1 0
-       1 1 1 0     line4
-       0 0 0 0
+       1 1 1 1
+       1 0 0 1
+       1 0 0 1     line2
+       1 0 0 1
+       1 1 1 1     line3
+       0 0 0 1
+       0 0 0 1     line4
+       1 1 1 1
 
         line5
 */
@@ -705,12 +706,12 @@ _matrix_pt template_nine(_MAT_COL wid) //copy from template_six
 
     for(i = 0; i < size; i++) //draw line1
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     _MAT_ROW row_bg_low_hf = (wid*2 - ratio*3)/2; //low half of row of background
-    _MAT_ROW row_bg_hig_hf = 
-       (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    //_MAT_ROW row_bg_hig_hf = (wid%8) ?  row_bg_low_hf + 1 : row_bg_low_hf; //first half of row of background
+    _MAT_ROW row_bg_hig_hf = wid*2 - ratio*3 - row_bg_low_hf; //first half of row of background
     _MAT_COL col_bg_hig_hf = wid - ratio*2; //first half of col of background
     _MAT_COL col_bg_low_hf = wid - ratio; //low half of col of background
     _MAT_COL j = 0;
@@ -719,38 +720,38 @@ _matrix_pt template_nine(_MAT_COL wid) //copy from template_six
     {
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
         for(j = 0; j < col_bg_hig_hf; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
         
     for(i = 0; i < size; i++) //draw line3
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     for(i = 0; i < row_bg_low_hf; i++) //draw line4
     {
         for(j = 0; j < col_bg_low_hf; j++)
         {
-            mat->pMat[pos++] = 1;
+            mat->pMat[pos++] = BACKGROUND;
         }
         for(j = 0; j < ratio; j++)
         {
-            mat->pMat[pos++] = 0;
+            mat->pMat[pos++] = FOREGROUND;
         }
     }
 
     for(i = 0; i < size; i++) //draw line5
     {
-        mat->pMat[pos++] = 0;
+        mat->pMat[pos++] = FOREGROUND;
     }
 
     return mat;
@@ -769,7 +770,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
         return MAT_ERR;
     }
     g_number_mat[0] = mat_ret;
-    
+
     mat_ret = template_one(wid);
     if(!mat_ret)
     {
@@ -779,6 +780,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
         return MAT_ERR;
     }
     g_number_mat[1] = mat_ret;
+
     
     mat_ret = template_two(wid);
     if(!mat_ret)

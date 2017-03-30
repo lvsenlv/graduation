@@ -12,4 +12,4 @@ sub_make :
 .PHONY : clean
 	
 clean :
-	rm -rf $(OBJS_DIR) $(PROGRAM)
+	rm -rf $(OBJS_DIR) $(PROGRAM) log.txt

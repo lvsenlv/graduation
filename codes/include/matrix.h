@@ -63,5 +63,31 @@ void matrix_free(_matrix_pt mat);
 _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB, 
     _CON uint8_t symbol);
 
+
+
+/*************************************************************************
+                          extended functions
+ ************************************************************************/
+
+#include <stdarg.h>
+
+#ifdef __DEBUG
+#define     zeros(row, col)                           matrix_create(row, col)
+_matrix_pt ones(_MAT_ROW row, _MAT_COL col, ...);
+
+#else
+_matrix_pt zeros(_MAT_ROW row, _MAT_COL col);
+_matrix_pt ones(_MAT_ROW row, _MAT_COL col);
+#endif //__DEBUG
+
+typedef enum {
+    SUM_ROW = 1,
+    SUM_COL,
+    SUM_ALL,
+}SUM_OPTS;
+
+void *sum(_matrix_pt mat, ...);
+_MAT_TYPE max(_matrix_pt mat);
+
 #endif
 

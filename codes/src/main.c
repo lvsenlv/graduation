@@ -7,9 +7,37 @@
 
 #include "image.h"
 #include "template.h"
+#include "stdlib.h"
 
 int main(int argc, char **argv)
 {
+    /*
+    uint32_t i = 0;
+    for(i = 4; i < 100; i++)
+    {
+        DISP("%d \n", i);
+        template_create(i);
+        template_disp();
+        template_free();
+    }*/
+
+    
+    template_create(27);
+    template_disp();
+    template_free();
+    
+    /*
+    _matrix_pt mat_ret = NULL;
+    mat_ret = template_nine(9);
+    if(!mat_ret)
+    {
+        DISP_ERR(ERR_FATAL);
+        return -1;
+    }
+    matrix_free(mat_ret);*/
+    
+    
+    /*
     _bmp_pt bmp = NULL;
     bmp = image_read("/root/pictures/pic1.bmp");
     if(!bmp)
@@ -51,11 +79,28 @@ int main(int argc, char **argv)
         bmp_free(bmp_gray_ret);
         return -1;
     }
+
+
+    if(bmp_digit_row_locate(bmp_gray_ret))
+    {
+        DISP_ERR("error in bmp_digit_row_locate");
+        bmp_free(bmp);
+        bmp_free(bmp_gray_ret);
+        return -1;
+    }
+
+    if(bmp_digit_col_locate(bmp_gray_ret))
+    {
+        DISP_ERR("error in bmp_digit_col_locate");
+        bmp_free(bmp);
+        bmp_free(bmp_gray_ret);
+        return -1;
+    }
     
-    image_write_plus(bmp_gray_ret, "./object/binary.bmp");
+    image_write_plus_col(bmp_gray_ret, "./object");
     
     bmp_free(bmp);
-    bmp_free(bmp_gray_ret); 
+    bmp_free(bmp_gray_ret);*/
 
     return 0;
 }

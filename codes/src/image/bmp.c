@@ -7,6 +7,7 @@
 
 #include "bmp.h"
 #include <stdlib.h>
+#include "template.h"
 
 _bmp_pt bmp_create(void)
 {
@@ -51,7 +52,8 @@ _bmp_pt bmp_create(void)
         return NULL;
     }
 
-    bmp->head_info->pMat = NULL; 
+    bmp->head_info->pMat = NULL;
+    bmp->vital_info->reserved4 = NULL;
     bmp->data_info->pMat = NULL;
 
     return bmp;
@@ -86,7 +88,7 @@ _G_STATUS bmp_head_parse(_bmp_pt bmp, uint8_t *ptr)
     bmp->head_info->col = HEAD_INFO_SIZE;
 
     //get vital info
-    _bmp_vital_pt nptr = bmp->vital_info;
+    _bmp_vital_pt vital = bmp->vital_info;
     
     uint32_t width = 0;
     width |= ptr[21];
@@ -96,7 +98,7 @@ _G_STATUS bmp_head_parse(_bmp_pt bmp, uint8_t *ptr)
     width |= ptr[19];
     width <<= 8;
     width |= ptr[18];
-    nptr->width = width;
+    vital->width = width;
 
     uint32_t height = 0;
     height |= ptr[25];
@@ -106,14 +108,14 @@ _G_STATUS bmp_head_parse(_bmp_pt bmp, uint8_t *ptr)
     height |= ptr[23];
     height <<= 8;
     height |= ptr[22];
-    nptr->height = height;
+    vital->height = height;
     
     uint16_t bit_count = 0;
     bit_count <<= 8;
     bit_count |= ptr[29];
     bit_count <<= 8;
     bit_count |= ptr[28];
-    nptr->bit_count = bit_count;
+    vital->bit_count = bit_count;
 
     uint32_t real_size = 0;
     real_size |= ptr[37];
@@ -123,9 +125,9 @@ _G_STATUS bmp_head_parse(_bmp_pt bmp, uint8_t *ptr)
     real_size |= ptr[35];
     real_size <<= 8;
     real_size |= ptr[34];
-    nptr->real_size = real_size;
+    vital->real_size = real_size;
 
-    nptr->real_width = COUNT_REAL_WIDTH(width*bit_count);
+    vital->real_width = COUNT_REAL_WIDTH(width*bit_count);
     
     return STAT_OK;
 }
@@ -135,6 +137,8 @@ void bmp_free(_bmp_pt bmp)
     if(bmp)
     {
         matrix_free(bmp->head_info);
+        if(bmp->vital_info->reserved4)
+            free(bmp->vital_info->reserved4);
         free(bmp->vital_info);
         matrix_free(bmp->data_info);
         free(bmp);
@@ -537,10 +541,12 @@ _G_STATUS bmp_median_filter(_bmp_pt bmp)
         }
     }
     
-    DISP("%d \n", total_times);
+    //DISP("%d \n", total_times);
     return STAT_OK;
 }
 
+
+//formula: var=(uk - average*wk)^2 / (wk*(1-wk))
 _G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold)
 {
 #ifdef __DEBUG
@@ -567,11 +573,11 @@ _G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold)
         histogram[data_ptr[i]]++;
     }
 
-    float avgValue = 0;
+    float average = 0;
     for(i = 0; i < 256; i++)  
     {  
         histogram[i] = histogram[i] / size;
-        avgValue += i*histogram[i];
+        average  += i * histogram[i];
     }
 
     float var = 0;
@@ -583,7 +589,7 @@ _G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold)
         wk += histogram[i];  
         uk += i * histogram[i];       
   
-        ut = avgValue*wk - uk;  
+        ut = average *wk - uk;
         var = ut*ut / (wk * (1 - wk));    
           
         if(var > var_max)  
@@ -618,11 +624,307 @@ _G_STATUS bmp_convert_binary(_bmp_pt bmp, uint8_t threshold)
 
     for(i = 0; i < size; i++)
     {
-        *data_ptr = ((*data_ptr < threshold) ? 0x0 : 0xFF);
+        //*data_ptr = ((*data_ptr < threshold) ? 0x0 : 0xFF);
+        *data_ptr = ((*data_ptr < threshold) ? 0 : 1); //0 is background, 1 is foreground
         data_ptr++;
     }
-    //matrix_disp(bmp->data_info);
 
     return STAT_OK;
 }
+
+_G_STATUS bmp_digit_row_locate(_bmp_pt bmp)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    uint32_t col = bmp->vital_info->width;
+    uint32_t row = bmp->vital_info->height;
+
+    uint8_t *row_sum_array = (uint8_t *)malloc(row);
+    if(!row_sum_array)
+    {
+        DISP_ERR(ERR_MALLOC);
+        return STAT_ERR;
+    }
+
+    uint32_t *row_start_array = (uint32_t *)malloc(row*sizeof(uint32_t));
+    if(!row_start_array)
+    {
+        DISP_ERR(ERR_MALLOC);
+        free(row_sum_array);
+        return STAT_ERR;
+    }
+
+    uint32_t *row_end_array = (uint32_t *)malloc(row*sizeof(uint32_t));
+    if(!row_end_array)
+    {
+        DISP_ERR(ERR_MALLOC);
+        free(row_sum_array);
+        free(row_start_array);
+        return STAT_ERR;
+    }
+
+    uint32_t *tmp_array = (uint32_t *)malloc(row*sizeof(uint32_t));
+    if(!tmp_array)
+    {
+        DISP_ERR(ERR_MALLOC);
+        free(row_sum_array);
+        free(row_start_array);
+        free(row_end_array);
+        return STAT_ERR;
+    }
+
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    _MAT_ROW i = 0;
+    _MAT_COL j = 0;
+    for(i = 0; i < row; i++)
+    {
+        row_sum_array[i] = 0;
+        for(j = 0; j < col; j++)
+        {
+            row_sum_array[i] |= data_ptr[j];
+        }
+        data_ptr += col;
+    }
+
+    uint32_t tmp = row - 1;
+    uint32_t row_start_array_pos = 0, row_end_array_pos = 0, tmp_array_pos = 0;
+    for(i = 1; i < row; i++) //start from the second row
+    {
+        row_start_array[i] = 0;
+        row_end_array[i] = 0;
+        
+        if( 1 != i)
+        {
+            if(i != tmp)
+            {
+                if( (1 == row_sum_array[i]) && (0 == row_sum_array[i-1]) )
+                {
+                    row_start_array[row_start_array_pos++] = i;
+                }
+                if( (0 == row_sum_array[i]) && ( 1 == row_sum_array[i-1]) )
+                {
+                    row_end_array[row_end_array_pos++] = i;
+                    
+                    tmp_array[tmp_array_pos++] = row_start_array[--row_start_array_pos];
+                    tmp_array[tmp_array_pos++] = i;
+                    tmp_array[tmp_array_pos++] = \
+                        i - row_start_array[row_start_array_pos++];
+                }
+            }
+            else
+            {
+                if( row_sum_array[tmp] && row_sum_array[tmp-1] )
+                {
+                    row_end_array[row_end_array_pos++] = tmp;
+                    tmp_array[tmp_array_pos++] = row_start_array[--row_start_array_pos];
+                    tmp_array[tmp_array_pos++] = i;
+                    tmp_array[tmp_array_pos++] = \
+                        i - row_start_array[row_start_array_pos++];
+                }
+            } 
+        }
+        else
+        {
+            if( row_sum_array[0] && row_sum_array[1] )
+            {
+                row_start_array[row_start_array_pos++] = 0;
+            }
+        }
+    }
+
+    if(row_start_array_pos != row_end_array_pos)
+    {
+        DISP_ERR(ERR_FATAL);
+        free(row_sum_array);
+        free(row_start_array);
+        free(row_end_array);
+        free(tmp_array);
+        return STAT_ERR;
+    }
+
+    uint32_t coordinate;
+    uint32_t max = tmp_array[--tmp_array_pos];
+    coordinate = tmp_array_pos;
+    tmp_array_pos -= 2;
+    
+    while(tmp_array_pos)
+    {
+        tmp_array_pos--;
+        if(max < tmp_array[tmp_array_pos])
+        {
+            max = tmp_array[tmp_array_pos];
+            coordinate = tmp_array_pos;
+        }
+        tmp_array_pos -= 2;
+    }
+
+    bmp->vital_info->reserved2= tmp_array[coordinate-2];
+    bmp->vital_info->reserved3 = tmp_array[coordinate-1];
+
+    free(row_sum_array);
+    free(row_start_array);
+    free(row_end_array);
+    free(tmp_array);
+    return STAT_OK;
+}
+
+_G_STATUS bmp_digit_col_locate(_bmp_pt bmp)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    uint32_t row = bmp->vital_info->height;
+    uint32_t col = bmp->vital_info->width;
+    uint32_t *col_sum_array = (uint32_t *)malloc(col*sizeof(uint32_t));
+    if(!col_sum_array)
+    {
+        DISP_ERR(ERR_MALLOC);
+        return STAT_ERR;
+    }
+
+    uint32_t *col_array = (uint32_t *)malloc(col*sizeof(uint32_t));
+    if(!col_array)
+    {
+        DISP_ERR(ERR_MALLOC);
+        free(col_sum_array);
+        return STAT_ERR;
+    }
+    bmp->vital_info->reserved4 = col_array;
+
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    _MAT_TYPE *tmp_data_ptr = data_ptr;
+    uint32_t *tmp_ptr = NULL;
+    _MAT_ROW i = 0;
+    _MAT_COL j = 0;
+    for(j = 0; j < col; j++)
+    {
+        tmp_data_ptr = data_ptr + j;
+        tmp_ptr = col_sum_array + j;
+        *tmp_ptr = 0;
+        for(i = 0; i < row; i++)
+        {
+            *tmp_ptr |= *tmp_data_ptr;
+            tmp_data_ptr += col;
+        }
+    }
+
+    uint32_t tmp = col - 1;
+    uint32_t col_array_pos = 0;
+    for(j = 1; j < col; j++) //start from the second column
+    {
+        if( 1 != j)
+        {
+            if(j != tmp)
+            {
+                //column start coordinate
+                if( (1 == col_sum_array[j]) && (0 == col_sum_array[j-1]) )
+                {
+                    col_array[col_array_pos++] = j;
+                }
+                //column end coordinate
+                if( (0 == col_sum_array[j]) && ( 1 == col_sum_array[j-1]) )
+                {
+                    col_array[col_array_pos++] = j;
+                    col_array[col_array_pos] = COL_ARRAY_END; //the end of col_array
+                }
+            }
+            else
+            {
+                if( col_sum_array[tmp] && col_sum_array[tmp-1] )
+                {
+                    col_array[col_array_pos++] = tmp;
+                    col_array[col_array_pos] = COL_ARRAY_END; //the end of col_array
+                }
+            }
+        }
+        else
+        {
+            if(col_sum_array[0] && col_sum_array[1])
+            {
+                col_array[col_array_pos++] = 0;
+            }
+        }
+    }
+
+    free(col_sum_array);
+    //return STAT_ERR;
+    return STAT_OK;
+}
+
+_G_STATUS bmp_digit_recognize(_bmp_pt bmp)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    _bmp_vital_pt vital = bmp->vital_info;
+    uint32_t *col_array = vital->reserved4;
+    uint32_t *col_array_remain = col_array;
+    
+    //the remaining area of col_array is used to storage the result of recognization
+    while(COL_ARRAY_END != *++col_array_remain); //point to the remaining area
+    
+    uint32_t width = 0, width_start = 0, width_end = 0;
+    uint32_t height_start = vital->reserved2, height_end = vital->reserved3;
+    uint32_t height = height_end - height_start;
+
+    while(COL_ARRAY_END != *col_array)
+    {
+        width_start = col_array[0];
+        width_end = col_array[1];
+        width = width_end - width_start;
+        if((height/width) >= 2)
+        {
+            *col_array_remain++ = 1; //the digit is "1"
+            *col_array_remain = COL_ARRAY_REAL_END;
+            col_array += 2;
+            continue;
+        }
+
+        
+
+        
+        
+
+        col_array += 2;
+    }
+
+    return STAT_OK;
+}
+
+
+
 

@@ -16,6 +16,8 @@
 #define     FILTER_MODEL_SIZE               3
 #define     FILTER_OFFSET                   (FILTER_MODEL_SIZE >> 1)
 #define     FILTER_OFFSET_PLUS              ((FILTER_MODEL_SIZE*FILTER_MODEL_SIZE) >> 1)
+#define     COL_ARRAY_END                   0xFFFF
+#define     COL_ARRAY_REAL_END              0xFFFFF
 #define     MIDDLE(a, b, c) \
             (   (a)>(b)   \
                  ?   \
@@ -56,8 +58,12 @@ typedef struct bmp_vital_info { //use memset to initialize this struct after cre
     uint32_t width;
     uint32_t height;
     uint16_t bit_count;
+    uint16_t reserved1;         //align with 4 byte
     uint32_t real_size;
     uint32_t real_width;
+    uint32_t reserved2;         //in the numberal image, it means the start row of image
+    uint32_t reserved3;         //in the numberal image, it means the end row of image
+    uint32_t *reserved4;        //in the numberal image, it points to the col of image
 }_bmp_vital_t, *_bmp_vital_pt;
 
 typedef struct bmp_info {
@@ -75,7 +81,8 @@ _bmp_pt bmp_convert_gray(_bmp_pt bmp);
 _G_STATUS bmp_median_filter(_bmp_pt bmp);
 _G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold);
 _G_STATUS bmp_convert_binary(_bmp_pt bmp, uint8_t threshold);
-
+_G_STATUS bmp_digit_row_locate(_bmp_pt bmp);
+_G_STATUS bmp_digit_col_locate(_bmp_pt bmp);
 
 #endif
 
