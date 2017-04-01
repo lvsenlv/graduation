@@ -301,8 +301,7 @@ _bmp_pt bmp_convert_gray(_bmp_pt bmp)
 }
 
 //this algorithm costs much time in loop
-#if 0
-_G_STATUS bmp_median_filter(_bmp_pt bmp)
+_G_STATUS bmp_median_filter_slow(_bmp_pt bmp)
 {
 #ifdef __DEBUG
     if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
@@ -374,9 +373,7 @@ _G_STATUS bmp_median_filter(_bmp_pt bmp)
     DISP("%d \n", total_times);
     return STAT_OK;
 }
-#endif
 
-#if 0
 _G_STATUS bmp_median_filter(_bmp_pt bmp)
 {
 #ifdef __DEBUG
@@ -471,13 +468,13 @@ _G_STATUS bmp_median_filter(_bmp_pt bmp)
             data_ptr[width*row + col] = buf[FILTER_OFFSET];
         }
     }
-    DISP("%d \n", total_times);
+    DISP("%s cycle index is: %d \n", __func__, total_times);
     return STAT_OK;
 }
-#endif
+//#endif
 
 //efficient algorithm when model size is 3
-_G_STATUS bmp_median_filter(_bmp_pt bmp)
+_G_STATUS bmp_median_filter_fast(_bmp_pt bmp)
 {
 #ifdef __DEBUG
     if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
@@ -544,7 +541,6 @@ _G_STATUS bmp_median_filter(_bmp_pt bmp)
     //DISP("%d \n", total_times);
     return STAT_OK;
 }
-
 
 //formula: var=(uk - average*wk)^2 / (wk*(1-wk))
 _G_STATUS bmp_get_threshold(_bmp_pt bmp, uint8_t *threshold)
@@ -632,6 +628,111 @@ _G_STATUS bmp_convert_binary(_bmp_pt bmp, uint8_t threshold)
     return STAT_OK;
 }
 
+_G_STATUS bmp_dilate(_bmp_pt bmp, uint8_t struct_width)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    uint32_t width = bmp->vital_info->width;
+    uint32_t height = bmp->vital_info->height;
+
+    uint8_t remain = struct_width - 1;
+    _MAT_ROW row, row_start = height - 1;
+    _MAT_COL col, col_end = width - remain;
+    uint8_t i = 0, j = 0;
+    
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    _MAT_TYPE *tmp_ptr = NULL;
+    uint8_t flag = 0;
+    
+/*
+    tmp_ptr = data_ptr;
+    for(row = 0; row < height; row++)
+    {
+        for(col = 0; col < width; col++)
+        {
+            DISP("%d ", tmp_ptr[col]);
+        }
+        tmp_ptr += width;
+        DISP("\n");
+    }
+    DISP("\n");
+*/
+
+    //dilation direction: from bottom to top, left to right
+    for(row = row_start; row >= remain; row--)
+    {
+        for(col = 0; col < col_end; col++)
+        {
+            flag = 0;
+            tmp_ptr = data_ptr + width*row + col;
+            if(*tmp_ptr)
+                continue;
+            
+            for(i = 0; i < struct_width; i++)
+            {
+                for(j = 0; j < struct_width; j++)
+                {
+                    flag |= tmp_ptr[j];
+                }
+                tmp_ptr -= width;
+            }            
+            data_ptr[width*row + col] = flag;
+        }
+    }
+
+/*
+    //dilate the rest pixels, the rest width is remain
+    for(row = 0; row < remain; row++)
+    {
+        for(col = 0; col < col_end; col++)
+        {
+            flag = 0;
+            tmp_ptr = data_ptr + width*row + col;
+            if(*tmp_ptr)
+                continue;
+            
+            for(i = 0; i < struct_width; i++)
+            {
+                for(j = 0; j < struct_width; j++)
+                {
+                    //DISP("%d ", tmp_ptr[j]);
+                    flag |= tmp_ptr[j];
+                }
+                tmp_ptr += width;
+            }            
+            data_ptr[width*row + col] = flag;
+        }
+        DISP("\n");
+    }
+
+
+    tmp_ptr = data_ptr;
+    for(row = 0; row < height; row++)
+    {
+        for(col = 0; col < width; col++)
+        {
+            DISP("%d ", tmp_ptr[col]);
+        }
+        tmp_ptr += width;
+        DISP("\n");
+    }
+*/
+    
+    return STAT_OK;
+}
+
 _G_STATUS bmp_digit_row_locate(_bmp_pt bmp)
 {
 #ifdef __DEBUG
@@ -700,12 +801,12 @@ _G_STATUS bmp_digit_row_locate(_bmp_pt bmp)
 
     uint32_t tmp = row - 1;
     uint32_t row_start_array_pos = 0, row_end_array_pos = 0, tmp_array_pos = 0;
-    for(i = 1; i < row; i++) //start from the second row
+    for(i = 0; i < row; i++) //start from the second row
     {
         row_start_array[i] = 0;
         row_end_array[i] = 0;
         
-        if( 1 != i)
+        if( 0 != i)
         {
             if(i != tmp)
             {
@@ -737,14 +838,29 @@ _G_STATUS bmp_digit_row_locate(_bmp_pt bmp)
         }
         else
         {
-            if( row_sum_array[0] && row_sum_array[1] )
+            if( (1 == row_sum_array[0]) && (1 == row_sum_array[1]) )
             {
                 row_start_array[row_start_array_pos++] = 0;
+            }
+            else if( (1 == row_sum_array[0]) && (0 == row_sum_array[1]) )
+            {
+                i++;
             }
         }
     }
 
     if(row_start_array_pos != row_end_array_pos)
+    {
+        DISP_ERR(ERR_FATAL);
+        free(row_sum_array);
+        free(row_start_array);
+        free(row_end_array);
+        free(tmp_array);
+        return STAT_ERR;
+    }
+
+    //if all the pixels is 0 - a whole black image
+    if(0 == row_start_array_pos && 0 == row_end_array_pos)
     {
         DISP_ERR(ERR_FATAL);
         free(row_sum_array);
@@ -796,7 +912,8 @@ _G_STATUS bmp_digit_col_locate(_bmp_pt bmp)
     }
 #endif //__DEBUG
 
-    uint32_t row = bmp->vital_info->height;
+    uint32_t row_start = bmp->vital_info->reserved2;
+    uint32_t row_diff = bmp->vital_info->reserved3 - row_start;
     uint32_t col = bmp->vital_info->width;
     uint32_t *col_sum_array = (uint32_t *)malloc(col*sizeof(uint32_t));
     if(!col_sum_array)
@@ -821,10 +938,10 @@ _G_STATUS bmp_digit_col_locate(_bmp_pt bmp)
     _MAT_COL j = 0;
     for(j = 0; j < col; j++)
     {
-        tmp_data_ptr = data_ptr + j;
+        tmp_data_ptr = data_ptr + col*row_start + j;
         tmp_ptr = col_sum_array + j;
         *tmp_ptr = 0;
-        for(i = 0; i < row; i++)
+        for(i = 0; i < row_diff; i++)
         {
             *tmp_ptr |= *tmp_data_ptr;
             tmp_data_ptr += col;
@@ -833,9 +950,9 @@ _G_STATUS bmp_digit_col_locate(_bmp_pt bmp)
 
     uint32_t tmp = col - 1;
     uint32_t col_array_pos = 0;
-    for(j = 1; j < col; j++) //start from the second column
+    for(j = 0; j < col; j++) //start from the second column
     {
-        if( 1 != j)
+        if( 0 != j)
         {
             if(j != tmp)
             {
@@ -866,6 +983,10 @@ _G_STATUS bmp_digit_col_locate(_bmp_pt bmp)
             {
                 col_array[col_array_pos++] = 0;
             }
+            else if( (1 == col_sum_array[0]) && (0 == col_sum_array[1]) )
+            {
+                col_array[col_array_pos++] = 0;
+            }
         }
     }
 
@@ -893,16 +1014,29 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
     _bmp_vital_pt vital = bmp->vital_info;
     uint32_t *col_array = vital->reserved4;
     uint32_t *col_array_remain = col_array;
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
     
     //the remaining area of col_array is used to storage the result of recognization
-    while(COL_ARRAY_END != *++col_array_remain); //point to the remaining area
+    while(COL_ARRAY_END != *col_array_remain++); //point to the remaining area
     
-    uint32_t width = 0, width_start = 0, width_end = 0;
-    uint32_t height_start = vital->reserved2, height_end = vital->reserved3;
-    uint32_t height = height_end - height_start;
+    uint32_t width = 0, width_start = 0, width_end = 0, width_last = 0;
+    uint32_t height = 0, height_start = 0, height_end = 0;
+    uint32_t flag = 0, tmp = 0;
+    int32_t height_diff = 0;
+    uint32_t height_start_tp = 0;
+    _MAT_TYPE *template_ptr = NULL;
+    _MAT_TYPE *digit_ptr = NULL;
+    //uint32_t real_width = vital->real_width;
+    uint32_t real_width = vital->width;
+    uint32_t j = 0, k = 0;
+    uint32_t factor[10], min = 0;
+    uint8_t i = 0, min_index = 0;
 
     while(COL_ARRAY_END != *col_array)
     {
+        height_start = vital->reserved2;
+        height_end = vital->reserved3;
+        height = height_end - height_start;
         width_start = col_array[0];
         width_end = col_array[1];
         width = width_end - width_start;
@@ -914,17 +1048,218 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
             continue;
         }
 
-        
+        //it's unnecessary to create template if width_last is equal with width
+        if(width_last != width)
+        {
+            if(flag) //do not free template in the first time
+                template_free();
+            template_create(width);
+            flag = 1;
+        }
 
-        
-        
+        //make sure that the heigth of template is the same as digit's
+        height_diff = width*2 - height;
+        if(height_diff < 0)
+        {
+            height_diff *= -1;
+            tmp = (uint32_t)height_diff / 2;
+            height_start += (uint32_t)height_diff - tmp;
+            height_end -= tmp;
+        }
+        else if(height_diff > 0)
+        {
+            tmp = (uint32_t)height_diff / 2;
+            height_start_tp = tmp;
+        }
+        else
+        {
+            height_start_tp = 0;
+        }
 
+        digit_ptr = data_ptr + (height_end-1)*real_width + width_start;
+        for(j = height_start; j < height_end; j++)
+        {
+            for(k = 0; k < width; k++)
+            {
+                DISP("%d ", digit_ptr[k]);
+            }
+            digit_ptr -= real_width;
+            DISP("\n");
+        }
+        DISP("\n");
+        
+        for(i = 1; i < 10; i++)
+        {
+            digit_ptr = data_ptr + (height_end-1)*real_width + width_start;
+            template_ptr = g_number_mat[i]->pMat + height_start_tp*width;
+            tmp = 0;
+            for(j = height_start; j < height_end; j++)
+            {
+                for(k = 0; k < width; k++)
+                {
+                    DISP("%d ", template_ptr[k]);
+                    tmp += (digit_ptr[k] ^ template_ptr[k]);
+                }
+                digit_ptr -= real_width;
+                template_ptr += width;
+                DISP("\n");
+            }
+            DISP("\n");
+            factor[i] = tmp;
+        }
+
+        min = factor[1];
+        min_index = 1;
+        for(i = 1; i < 10; i++)
+        {
+            DISP("%d ", factor[i]);
+            if(min > factor[i])
+            {
+                min = factor[i];
+                min_index = i;
+            }
+        }
+        DISP("\n");
+
+        if(1 != min_index)
+        {
+            *col_array_remain++ = min_index; //the digit is 2-9
+            *col_array_remain = COL_ARRAY_REAL_END;
+        }
+        else
+        {
+            *col_array_remain++ = 0; //the digit is 0
+            *col_array_remain = COL_ARRAY_REAL_END;
+        }
+        
+        width_last = width;
         col_array += 2;
     }
 
+    template_free();
     return STAT_OK;
 }
 
+#if 0
+_G_STATUS bmp_digit_recognize(_bmp_pt bmp)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
 
+    uint8_t *new_digit = (uint8_t *)malloc(32*16);
+    if(!new_digit)
+    {
+        DISP_ERR(ERR_MALLOC);
+        return STAT_ERR;
+    }
+    if(template_create(16))
+    {
+        free(new_digit);
+        return STAT_ERR;
+    }
+    
+    _bmp_vital_pt vital = bmp->vital_info;
+    uint32_t *col_array = vital->reserved4;
+    uint32_t *col_array_remain = col_array;
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    
+    //the remaining area of col_array is used to storage the result of recognization
+    while(COL_ARRAY_END != *col_array_remain++); //point to the remaining area
+    
+    uint32_t width = 0, width_start = 0, width_end = 0;
+    uint32_t height = 0, height_start = 0, height_end = 0;
+    uint32_t i = 0, j = 0, row_off = 0, col_off = 0;
+    uint8_t *new_digit_ptr = NULL, *tmp_digit_ptr = NULL;
+    _MAT_TYPE *tmp_data_ptr = NULL, *template_ptr = NULL;
+    uint32_t real_width = vital->width;
+    _VOL int32_t factor[10];
+    int32_t min = 0, tmp = 0;
+    uint8_t min_index = 0;
 
+    while(COL_ARRAY_END != *col_array)
+    {
+        height_start = vital->reserved2;
+        height_end = vital->reserved3;
+        height = height_end - height_start;
+        width_start = col_array[0];
+        width_end = col_array[1];
+        width = width_end - width_start;
+        if((height/width) >= 2)
+        {
+            *col_array_remain++ = 1; //the digit is "1"
+            *col_array_remain = COL_ARRAY_REAL_END;
+            col_array += 2;
+            continue;
+        }
+
+        new_digit_ptr = new_digit;
+        tmp_data_ptr = data_ptr + (height_end-1)*real_width + width_start;
+        for(i = 0; i < 32; i++)
+        {
+            row_off = (uint32_t)(((float)i*height)/32 + 0.5);
+            tmp_digit_ptr = tmp_data_ptr - row_off * real_width;
+            for(j = 0; j < 16; j++)
+            {
+                col_off = (uint32_t)(((float)j*width)/16 + 0.5);
+                //*new_digit_ptr++ = (tmp_digit_ptr[col_off] ? 0 : 1);
+                *new_digit_ptr++ = tmp_digit_ptr[col_off];
+            }
+        }
+
+        for(i = 1; i < 10; i++)
+        {
+            new_digit_ptr = new_digit;
+            template_ptr = g_number_mat[i]->pMat;
+            //factor[i] = 0;
+            tmp = 0;
+            for(j = 0; j < 32*16; j++)
+            {
+                tmp += (new_digit_ptr[j] ^ template_ptr[j]);
+            }
+            factor[i] = tmp;
+            
+        }
+
+        min = factor[1];
+        min_index = 1;
+        for(i = 1; i < 10; i++)
+        {
+            if(min > factor[i])
+            {
+                min = factor[i];
+                min_index = i;
+            }
+        }
+
+        if(1 != min_index)
+        {
+            *col_array_remain++ = min_index; //the digit is 2-9
+            *col_array_remain = COL_ARRAY_REAL_END;
+        }
+        else
+        {
+            *col_array_remain++ = 0; //the digit is 0
+            *col_array_remain = COL_ARRAY_REAL_END;
+        }
+        
+        col_array += 2;
+    }
+    
+    free(new_digit);
+    template_free();
+    
+    return STAT_OK;
+}
+#endif
 

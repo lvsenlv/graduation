@@ -22,7 +22,7 @@ _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file);
 _G_STATUS image_write_gray(_bmp_pt bmp, int8_t *img_file);
 _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file);
 _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file);
-_G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_file);
+_G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_path);
 
 #endif
 

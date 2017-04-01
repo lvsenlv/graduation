@@ -769,8 +769,9 @@ _MAT_STATUS template_create(_MAT_COL wid)
 #endif //__DEBUG
         return MAT_ERR;
     }
-    g_number_mat[0] = mat_ret;
+    g_number_mat[1] = mat_ret;
 
+/*
     mat_ret = template_one(wid);
     if(!mat_ret)
     {
@@ -780,7 +781,7 @@ _MAT_STATUS template_create(_MAT_COL wid)
         return MAT_ERR;
     }
     g_number_mat[1] = mat_ret;
-
+*/
     
     mat_ret = template_two(wid);
     if(!mat_ret)
@@ -869,7 +870,7 @@ void template_free(void)
 { 
     _VOL uint16_t i = 0 ;
 
-    for(i = 0; i < 10; i++)
+    for(i = 1; i < 10; i++)
     {
         /*
         //fllowing action costs several times due to access memory
@@ -892,7 +893,7 @@ void template_disp(void)
 {
     _VOL uint16_t i = 0 ;
 
-    for(i = 0; i < 10; i++)
+    for(i = 1; i < 10; i++)
     {
 #ifdef __DEBUG
         if(!g_number_mat[i])

@@ -323,7 +323,7 @@ _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file)
         vital->real_width - ((width * vital->bit_count) >> 3);
     uint32_t i = 0, j = 0;
     uint8_t *data_info = bmp->data_info->pMat;
-    uint8_t *tmp_ptr = buf;
+    uint8_t *tmp_ptr = buf, tmp = 0;
 
     if(0 == fill_pixel_num) 
     {
@@ -333,10 +333,10 @@ _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file)
             {
                 //data of G and R are the same with B
                 //convert the color data "1" to "0xFF"
-                *data_info = (*data_info == 1) ? 0xFF : 0;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info++;
+                tmp = (*data_info++ == 1) ? 0xFF : 0;
+                *tmp_ptr++  = tmp;
+                *tmp_ptr++  = tmp;
+                *tmp_ptr++  = tmp;
             }    
         }
     }
@@ -348,10 +348,10 @@ _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file)
             {
                 //data of G and R are the same with B
                 //convert the color data "1" to "0xFF"
-                *data_info = (*data_info) ? 0xFF : 0;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info++;
+                tmp = (*data_info++ == 1) ? 0xFF : 0;
+                *tmp_ptr++  = tmp;
+                *tmp_ptr++  = tmp;
+                *tmp_ptr++  = tmp;
             } 
             
             //fill pixel due to align of 4 byte
@@ -452,7 +452,7 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
         vital->real_width - ((width * vital->bit_count) >> 3);
     uint32_t i = 0, j = 0;
     uint8_t *data_info = bmp->data_info->pMat + start_height*width;
-    uint8_t *tmp_ptr = buf;
+    uint8_t *tmp_ptr = buf, tmp_data;
 
     if(0 == fill_pixel_num) 
     {
@@ -462,10 +462,10 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
             {
                 //data of G and R are the same with B
                 //convert the color data "1" to "0xFF"
-                *data_info = (*data_info == 1) ? 0xFF : 0;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info++;
+                tmp_data = (*data_info++ == 1) ? 0xFF : 0;
+                *tmp_ptr++  = tmp_data;
+                *tmp_ptr++  = tmp_data;
+                *tmp_ptr++  = tmp_data;
             }
         }
     }
@@ -477,10 +477,10 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
             {
                 //data of G and R are the same with B
                 //convert the color data "1" to "0xFF"
-                *data_info = (*data_info) ? 0xFF : 0;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info;
-                *tmp_ptr++  = *data_info++;
+                tmp_data = (*data_info++ == 1) ? 0xFF : 0;
+                *tmp_ptr++  = tmp_data;
+                *tmp_ptr++  = tmp_data;
+                *tmp_ptr++  = tmp_data;
             } 
             
             //fill pixel due to align of 4 byte
@@ -508,7 +508,7 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
     return STAT_OK;
 }
 
-_G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_file)
+_G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_path)
 {
 #ifdef __DEBUG
     if(!bmp || !bmp->head_info || !bmp->head_info->pMat)  
@@ -540,11 +540,12 @@ _G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_file)
     uint8_t files = 1;          //determine the image name
     uint8_t *tmp_data_ptr = NULL, *buf = NULL, *tmp_ptr = NULL;
     uint32_t i = 0, j = 0;
+    uint8_t tmp_data = 0;
     
     while(COL_ARRAY_END != *col_array)
     {
         //create current image name
-        snprintf(file_name, IMAGE_FILE_NAME_LEN, "%s/num_%d_th.bmp", img_file, files++);
+        snprintf(file_name, IMAGE_FILE_NAME_LEN, "%s/num_%d_th.bmp", img_path, files++);
         g_image_fp = fopen(file_name, "w+");
         if(!g_image_fp)
         {
@@ -613,10 +614,10 @@ _G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_file)
                 {
                     //data of G and R are the same with B
                     //convert the color data "1" to "0xFF"
-                    *tmp_data_ptr = (*tmp_data_ptr == 1) ? 0xFF : 0;
-                    *tmp_ptr++  = *tmp_data_ptr;
-                    *tmp_ptr++  = *tmp_data_ptr;
-                    *tmp_ptr++  = *tmp_data_ptr++;
+                    tmp_data = (*tmp_data_ptr++ == 1) ? 0xFF : 0;
+                    *tmp_ptr++  = tmp_data;
+                    *tmp_ptr++  = tmp_data;
+                    *tmp_ptr++  = tmp_data;
                 }
             }
         }
@@ -629,10 +630,10 @@ _G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_file)
                 {
                     //data of G and R are the same with B
                     //convert the color data "1" to "0xFF"
-                    *tmp_data_ptr = (*tmp_data_ptr == 1) ? 0xFF : 0;
-                    *tmp_ptr++  = *tmp_data_ptr;
-                    *tmp_ptr++  = *tmp_data_ptr;
-                    *tmp_ptr++  = *tmp_data_ptr++;
+                    tmp_data = (*tmp_data_ptr++ == 1) ? 0xFF : 0;
+                    *tmp_ptr++  = tmp_data;
+                    *tmp_ptr++  = tmp_data;
+                    *tmp_ptr++  = tmp_data;
                 }
             
                 //fill pixel due to align of 4 byte

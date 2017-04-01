@@ -15,7 +15,7 @@ $(shell mkdir -p $(OBJS_DIR))
 CFLAGS += -std=c99 -g -Wall -Wno-strict-aliasing -O0
 CFLAGS += -D__DEBUG
 CFLAGS += -D__LINUX
-#CFLAGS += -D__REDIRECTION
+CFLAGS += -D__REDIRECTION
 
 export
 

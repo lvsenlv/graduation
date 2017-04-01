@@ -11,6 +11,9 @@
 #include "matrix.h"
 
 #define     BASE_WID                        4
+
+//in the image, 1 is foreground and 0 is background
+//in the match algorithm, 1 is transformed to 0, and 0 is tansformed to 1
 #define     FOREGROUND                      1
 #define     BACKGROUND                      0
 
