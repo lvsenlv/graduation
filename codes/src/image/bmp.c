@@ -1022,6 +1022,202 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
     uint32_t width = 0, width_start = 0, width_end = 0, width_last = 0;
     uint32_t height = 0, height_start = 0, height_end = 0;
     uint32_t flag = 0, tmp = 0;
+    uint32_t height_tp = 0;
+    uint8_t situation = 0;
+    uint32_t offset = 0;
+    _MAT_TYPE *template_ptr = NULL, *tmp_template_ptr = NULL;
+    _MAT_TYPE *digit_ptr = NULL, *tmp_digit_ptr = NULL;
+    //uint32_t real_width = vital->real_width;
+    uint32_t real_width = vital->width;
+    uint32_t j = 0, k = 0;
+    uint32_t factor[10], min = 0;
+    uint8_t i = 0, min_index = 0;
+
+    while(COL_ARRAY_END != *col_array)
+    {
+        height_start = vital->reserved2;
+        height_end = vital->reserved3;
+        height = height_end - height_start;
+        width_start = col_array[0];
+        width_end = col_array[1];
+        width = width_end - width_start;
+        if((height/width) >= 2)
+        {
+            *col_array_remain++ = 1; //the digit is "1"
+            *col_array_remain = COL_ARRAY_REAL_END;
+            col_array += 2;
+            continue;
+        }
+
+        //it's unnecessary to create template if width_last is equal with width
+        if(width_last != width)
+        {
+            if(flag) //do not free template in the first time
+                template_free();
+            template_create(width);
+            flag = 1;
+        }
+
+        //make sure that the heigth of template is the same as digit's
+        height_tp = width * 2 ;        
+        if((height_tp - height) > 0)
+        {
+            situation = 1;
+        }
+        else if((height_tp - height) < 0)
+        {
+            situation = 2;
+        }
+        else
+        {
+            situation = 3;
+        }
+
+        /*
+        digit_ptr = data_ptr + (height_end-1)*real_width + width_start;
+        for(j = height_start; j < height_end; j++)
+        {
+            for(k = 0; k < width; k++)
+            {
+                DISP("%d ", digit_ptr[k]);
+            }
+            digit_ptr -= real_width;
+            DISP("\n");
+        }
+        DISP("\n");
+        */
+
+        switch(situation)
+        {
+            case 1 :
+                for(i = 1; i < 10; i++)
+                {
+                    template_ptr = g_number_mat[i]->pMat;
+                    digit_ptr = data_ptr + (height_end-1)*real_width + width_start;
+                    tmp = 0;
+                    for(j = 0; j < height; j++)
+                    {
+                        offset = (uint32_t)(((float)j*height_tp)/height + 0.5);
+                        tmp_template_ptr = template_ptr + offset*width;
+                        for(k = 0; k < width; k++)
+                        {
+                            //DISP("%d ", tmp_template_ptr[k]);
+                            tmp += (digit_ptr[k] ^ tmp_template_ptr[k]);
+                        }
+                        digit_ptr -= real_width;
+                        //DISP("\n");
+                    }
+                    //DISP("\n");
+                    factor[i] = tmp;
+                }
+                break;
+            case 2 :
+                for(i = 1; i < 10; i++)
+                {
+                    digit_ptr = data_ptr + (height_end-1)*real_width + width_start;
+                    template_ptr = g_number_mat[i]->pMat;
+                    tmp = 0;
+                    for(j = 0; j < height_tp; j++)
+                    {
+                        offset = (uint32_t)(((float)j*height)/height_tp + 0.5);
+                        tmp_digit_ptr = digit_ptr - offset*real_width;
+                        for(k = 0; k < width; k++)
+                        {
+                            //DISP("%d ", template_ptr[k]);
+                            tmp += (tmp_digit_ptr[k] ^ template_ptr[k]);
+                        }
+                        template_ptr += width;
+                        //DISP("\n");
+                    }
+                    //DISP("\n");
+                    factor[i] = tmp;
+                }
+                break;
+            case 3 :
+                for(i = 1; i < 10; i++)
+                {
+                    digit_ptr = data_ptr + (height_end-1)*real_width + width_start;
+                    template_ptr = g_number_mat[i]->pMat;
+                    tmp = 0;
+                    for(j = height_start; j < height_end; j++)
+                    {
+                        for(k = 0; k < width; k++)
+                        {
+                            //DISP("%d ", template_ptr[k]);
+                            tmp += (digit_ptr[k] ^ template_ptr[k]);
+                        }
+                        digit_ptr -= real_width;
+                        template_ptr += width;
+                        //DISP("\n");
+                    }
+                    //DISP("\n");
+                    factor[i] = tmp;
+                }
+                break;
+            default :
+                break;
+        }
+
+        min = factor[1];
+        min_index = 1;
+        for(i = 1; i < 10; i++)
+        {
+            DISP("%d ", factor[i]);
+            if(min > factor[i])
+            {
+                min = factor[i];
+                min_index = i;
+            }
+        }
+        DISP("\n");
+
+        if(1 != min_index)
+        {
+            *col_array_remain++ = min_index; //the digit is 2-9
+            *col_array_remain = COL_ARRAY_REAL_END;
+        }
+        else
+        {
+            *col_array_remain++ = 0; //the digit is 0
+            *col_array_remain = COL_ARRAY_REAL_END;
+        }
+        
+        width_last = width;
+        col_array += 2;
+    }
+
+    template_free();
+    return STAT_OK;
+}
+
+#if 0
+_G_STATUS bmp_digit_recognize(_bmp_pt bmp)
+{
+#ifdef __DEBUG
+    if(!bmp || !bmp->head_info || !bmp->head_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+    
+    if(!bmp->vital_info || !bmp->data_info || !bmp->data_info->pMat)
+    {
+        DISP_ERR(ERR_BMP);
+        return STAT_ERR;
+    }
+#endif //__DEBUG
+
+    _bmp_vital_pt vital = bmp->vital_info;
+    uint32_t *col_array = vital->reserved4;
+    uint32_t *col_array_remain = col_array;
+    _MAT_TYPE *data_ptr = bmp->data_info->pMat;
+    
+    //the remaining area of col_array is used to storage the result of recognization
+    while(COL_ARRAY_END != *col_array_remain++); //point to the remaining area
+    
+    uint32_t width = 0, width_start = 0, width_end = 0, width_last = 0;
+    uint32_t height = 0, height_start = 0, height_end = 0;
+    uint32_t flag = 0, tmp = 0;
     int32_t height_diff = 0;
     uint32_t height_start_tp = 0;
     _MAT_TYPE *template_ptr = NULL;
@@ -1139,6 +1335,7 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
     template_free();
     return STAT_OK;
 }
+#endif
 
 #if 0
 _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
