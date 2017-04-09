@@ -7,45 +7,53 @@
 
 #include "common.h"
 
-#ifdef __LINUX
-    #pragma message("Activate __LINUX")
-    struct timeval g_start_time, g_stop_time;
-
+#ifdef __OS
     #ifdef __REDIRECTION
         #pragma message("Activate __REDIRECTION")
         FILE *g_disp_file = NULL;
-
     #else //__REDIRECTION
-        #pragma message("Unactivated __REDIRECTION")
+        #warning "Unactivated __REDIRECTION"
     #endif //__REDIRECTION
 
-    void __attribute__((constructor)) before_main(void)
-    {
+    #ifdef __LINUX
+        #pragma message("Activate __LINUX")
+        struct timeval g_start_time, g_stop_time;
+    #else //__LINUX
+        #warning "Unactivate __LINUX"
+    #endif //__LINUX
+#endif //__OS
+
+void __attribute__((constructor)) before_main(void)
+{
+#ifdef __OS
+    #ifdef __LINUX
         START_COUNT;
+    #endif //__LINUX
+
     #ifdef __REDIRECTION
         g_disp_file = fopen("./log.txt", "w+");
         if(g_disp_file)
             fclose(g_disp_file);
-    
+
         g_disp_file = fopen("./log.txt", "a+");
         if(!g_disp_file)
             g_disp_file = stderr;
     #endif //__REDIRECTION
-    }
+#endif //__OS
+}
 
-    void __attribute__((destructor)) after_main(void)
-    {
+void __attribute__((destructor)) after_main(void)
+{
+#ifdef __OS
     #ifdef __REDIRECTION
         if(g_disp_file)
             fclose(g_disp_file);
     #endif //__REDIRECTION
+
+    #ifdef __LINUX
         STOP_COUNT;
         START_STOP;
-    }
-
-
-#else //__LINUX
-    #pragma message("Unactivated __LINUX")
-    #pragma message("Unactivated __REDIRECTION")
-#endif //__LINUX
+    #endif //__LINUX
+#endif //__OS
+}
 

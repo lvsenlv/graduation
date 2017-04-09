@@ -5,19 +5,25 @@
 	> Created Time: 2017年03月15日 星期三 12时25分43秒
  ************************************************************************/
 
-#include <unistd.h>
-#include <stdlib.h>
 #include "image.h"
+#include <stdlib.h>
 
+#ifdef __LINUX
+#include <unistd.h>
+#endif
+
+#ifdef __OS
 FILE *g_image_fp = NULL;
 
 _bmp_pt image_read(int8_t *img_file)
 {
-    /*if(access(img_file, F_OK))
+#ifdef __LINUX
+    if(access(img_file, F_OK))
     {
         DISP_ERR_PLUS("[%s][%d]: %s does not exist \n", __func__, __LINE__, img_file);
         return NULL;
-    }*/
+    }
+#endif //__LINUX
 
     g_image_fp = fopen(img_file, "r");
     if(!g_image_fp)
@@ -114,6 +120,14 @@ _bmp_pt image_read(int8_t *img_file)
     return bmp;
 }
 
+#else //__OS
+#ifdef __FATFS
+
+FIL g_fp;
+FIL *g_image_fp = NULL;
+#endif
+#endif //__OS
+
 _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
 {
 #ifdef __DEBUG
@@ -130,7 +144,12 @@ _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
     }
 #endif //__DEBUG
 
+    #ifdef __FATFS
+    g_image_fp = fopen_rewrite(img_file, "w+");
+    #else
     g_image_fp = fopen(img_file, "w+");
+    #endif //__FATFS
+    
     if(!g_image_fp)
     {
         DISP_ERR("error in fopen");
@@ -138,27 +157,51 @@ _G_STATUS image_write(_bmp_pt bmp, int8_t *img_file)
     }
 
     uint32_t ret = 0;
+    #ifdef __FATFS
+    ret = fwrite_rewrite(bmp->head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
+                g_image_fp);
+    #else
     ret = fwrite(bmp->head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
                 g_image_fp);
+    #endif //__FATFS
+    
     if(HEAD_INFO_SIZE != ret)
     {
         DISP_ERR("error in fwrite");
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
         fclose(g_image_fp);
+        #endif //__FATFS
         g_image_fp = NULL;
         return STAT_ERR;
     }
-    
+
+    #ifdef __FATFS
+    ret = fwrite_rewrite(bmp->data_info->pMat, sizeof(uint8_t), 
+                bmp->vital_info->real_size, g_image_fp);
+    #else
     ret = fwrite(bmp->data_info->pMat, sizeof(uint8_t), 
                 bmp->vital_info->real_size, g_image_fp);
+    #endif //__FATFS
+    
     if(bmp->vital_info->real_size != ret)
     {
         DISP_ERR("error in fwrite");
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
         fclose(g_image_fp);
+        #endif //__FATFS
         g_image_fp = NULL;
         return STAT_ERR;
     }
     
+    #ifdef __FATFS
+    fclose_rewrite(g_image_fp);
+    #else
     fclose(g_image_fp);
+    #endif //__FATFS
     g_image_fp = NULL;
 
 #if 0
@@ -188,7 +231,12 @@ _G_STATUS image_write_gray(_bmp_pt bmp, int8_t *img_file)
     }
 #endif //__DEBUG
 
+    #ifdef __FATFS
+    g_image_fp = fopen_rewrite(img_file, "w+");
+    #else
     g_image_fp = fopen(img_file, "w+");
+    #endif //__FATFS
+    
     if(!g_image_fp)
     {
         DISP_ERR("error in fopen");
@@ -196,12 +244,22 @@ _G_STATUS image_write_gray(_bmp_pt bmp, int8_t *img_file)
     }
 
     uint32_t ret = 0;
+    #ifdef __FATFS
+    ret = fwrite_rewrite(bmp->head_info->pMat, sizeof(uint8_t), 
+        HEAD_INFO_SIZE, g_image_fp);
+    #else
     ret = fwrite(bmp->head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
                 g_image_fp);
+    #endif //__FATFS
+    
     if(HEAD_INFO_SIZE != ret)
     {
         DISP_ERR("error in fwrite");
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
         fclose(g_image_fp);
+        #endif //__FATFS
         g_image_fp = NULL;
         return STAT_ERR;
     }
@@ -257,19 +315,32 @@ _G_STATUS image_write_gray(_bmp_pt bmp, int8_t *img_file)
         }
     }
 
+    #ifdef __FATFS
+    ret = fwrite_rewrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    #else
     ret = fwrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    #endif //__FATFS
+    
     if(real_size != ret)
     {
         DISP_ERR("error in fwrite");
-        fclose(g_image_fp);
-        g_image_fp = NULL;
         free(buf);
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
+        fclose(g_image_fp);
+        #endif //__FATFS
+        g_image_fp = NULL;
         return STAT_ERR;
     }
-    
-    fclose(g_image_fp);
-    g_image_fp = NULL;
+
     free(buf);
+    #ifdef __FATFS
+    fclose_rewrite(g_image_fp);
+    #else
+    fclose(g_image_fp);
+    #endif //__FATFS
+    g_image_fp = NULL;
 
     return STAT_OK;
 }
@@ -290,7 +361,12 @@ _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file)
     }
 #endif //__DEBUG
 
+    #ifdef __FATFS
+    g_image_fp = fopen_rewrite(img_file, "w+");
+    #else
     g_image_fp = fopen(img_file, "w+");
+    #endif //__FATFS
+    
     if(!g_image_fp)
     {
         DISP_ERR("error in fopen");
@@ -298,12 +374,22 @@ _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file)
     }
 
     uint32_t ret = 0;
+    #ifdef __FATFS
+    ret = fwrite_rewrite(bmp->head_info->pMat, sizeof(uint8_t), 
+        HEAD_INFO_SIZE, g_image_fp);
+    #else
     ret = fwrite(bmp->head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
                 g_image_fp);
+    #endif //__FATFS
+    
     if(HEAD_INFO_SIZE != ret)
     {
         DISP_ERR("error in fwrite");
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
         fclose(g_image_fp);
+        #endif //__FATFS
         g_image_fp = NULL;
         return STAT_ERR;
     }
@@ -362,19 +448,32 @@ _G_STATUS image_write_binary(_bmp_pt bmp, int8_t *img_file)
         }
     }
 
+    #ifdef __FATFS
+    ret = fwrite_rewrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    #else
     ret = fwrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    #endif //__FATFS
+    
     if(real_size != ret)
     {
         DISP_ERR("error in fwrite");
-        fclose(g_image_fp);
-        g_image_fp = NULL;
         free(buf);
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
+        fclose(g_image_fp);
+        #endif //__FATFS
+        g_image_fp = NULL;
         return STAT_ERR;
     }
-    
-    fclose(g_image_fp);
-    g_image_fp = NULL;
+
     free(buf);
+    #ifdef __FATFS
+    fclose_rewrite(g_image_fp);
+    #else
+    fclose(g_image_fp);
+    #endif //__FATFS
+    g_image_fp = NULL;
 
     return STAT_OK;
 }
@@ -395,7 +494,12 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
     }
 #endif //__DEBUG
 
+    #ifdef __FATFS
+    g_image_fp = fopen_rewrite(img_file, "w+");
+    #else
     g_image_fp = fopen(img_file, "w+");
+    #endif //__FATFS
+    
     if(!g_image_fp)
     {
         DISP_ERR("error in fopen");
@@ -431,12 +535,22 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
     head_ptr[37] = tmp & 0xFF;
     
     uint32_t ret = 0;
+    #ifdef __FATFS
+    ret = fwrite_rewrite(head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
+                g_image_fp);
+    #else
     ret = fwrite(head_info->pMat, sizeof(uint8_t), HEAD_INFO_SIZE, 
                 g_image_fp);
+    #endif //__FATFS
+    
     if(HEAD_INFO_SIZE != ret)
     {
         DISP_ERR("error in fwrite");
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
         fclose(g_image_fp);
+        #endif //__FATFS
         g_image_fp = NULL;
         return STAT_ERR;
     }
@@ -491,17 +605,30 @@ _G_STATUS image_write_plus_row(_bmp_pt bmp, int8_t *img_file)
         }
     }
 
+    #ifdef __FATFS
+    ret = fwrite_rewrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    #else
     ret = fwrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+    #endif //__FATFS
+    
     if(real_size != ret)
     {
         DISP_ERR("error in fwrite");
-        fclose(g_image_fp);
-        g_image_fp = NULL;
         free(buf);
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
+        fclose(g_image_fp);
+        #endif //__FATFS
+        g_image_fp = NULL;
         return STAT_ERR;
     }
     
+    #ifdef __FATFS
+    fclose_rewrite(g_image_fp);
+    #else
     fclose(g_image_fp);
+    #endif //__FATFS
     g_image_fp = NULL;
     free(buf);
 
@@ -546,7 +673,12 @@ _G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_path)
     {
         //create current image name
         snprintf(file_name, IMAGE_FILE_NAME_LEN, "%s/num_%d_th.bmp", img_path, files++);
+        #ifdef __FATFS
+        g_image_fp = fopen_rewrite(file_name, "w+");
+        #else
         g_image_fp = fopen(file_name, "w+");
+        #endif //__FATFS
+        
         if(!g_image_fp)
         {
             DISP_ERR_PLUS("error in fopen: %s\n", file_name);
@@ -585,11 +717,20 @@ _G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_path)
         tmp >>= 8;
         head_ptr[37] = tmp & 0xFF;
 
+        #ifdef __FATFS
+        ret = fwrite_rewrite(head_ptr, sizeof(uint8_t), HEAD_INFO_SIZE, g_image_fp);
+        #else
         ret = fwrite(head_ptr, sizeof(uint8_t), HEAD_INFO_SIZE, g_image_fp);
+        #endif //__FATFS
+        
         if(HEAD_INFO_SIZE != ret)
         {
             DISP_ERR_PLUS("error in fwrite: %s\n", file_name);
+            #ifdef __FATFS
+            fclose_rewrite(g_image_fp);
+            #else
             fclose(g_image_fp);
+            #endif //__FATFS
             g_image_fp = NULL;
             return STAT_ERR;
         }
@@ -643,24 +784,257 @@ _G_STATUS image_write_plus_col(_bmp_pt bmp, int8_t *img_path)
                 }
             }
         }
-        
+
+        #ifdef __FATFS
+        ret = fwrite_rewrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+        #else
         ret = fwrite(buf, sizeof(uint8_t), real_size, g_image_fp);
+        #endif //__FATFS
+        
         if(real_size != ret)
         {
             DISP_ERR_PLUS("error in fwrite: %s\n", file_name);
-            fclose(g_image_fp);
-            g_image_fp = NULL;
             free(buf);
+            #ifdef __FATFS
+            fclose_rewrite(g_image_fp);
+            #else
+            fclose(g_image_fp);
+            #endif //__FATFS
+            g_image_fp = NULL;
             return STAT_ERR;
         }
-    
-        fclose(g_image_fp);
-        g_image_fp = NULL;
 
         free(buf);
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
+        fclose(g_image_fp);
+        #endif //__FATFS
+        g_image_fp = NULL;
+        
         col_array += 2;
     }
 
     return STAT_OK;
 }
+
+/*************************************************************************
+                          extended functions
+ ************************************************************************/
+
+#ifdef __OS
+#define HEAD_INFO_SIZE_16BIT        (HEAD_INFO_SIZE+12)
+uint16_t *image_read_16bit_bmp(uint32_t img_width, uint32_t img_height, 
+    int8_t *img_file)
+{
+    g_image_fp = fopen(img_file, "r");
+    if(!g_image_fp)
+    {
+        DISP_ERR("error in fopen");
+        return NULL;
+    }
+    if(feof(g_image_fp) || ferror(g_image_fp))
+    {
+        DISP_ERR("error in feof or ferror");
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return NULL;
+    }
+
+    uint32_t real_width = COUNT_REAL_WIDTH(img_width*16);
+    uint32_t real_size = real_width*img_height;
+    uint8_t *data_ptr = (uint8_t *)malloc(real_size+HEAD_INFO_SIZE_16BIT);
+    if(!data_ptr)
+    {
+        DISP_ERR(ERR_MALLOC);
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return NULL;
+    }
+
+    uint32_t ret = 0;
+    ret = fread(data_ptr, sizeof(uint8_t), real_size+HEAD_INFO_SIZE_16BIT, g_image_fp);
+    if(ret != real_size+HEAD_INFO_SIZE_16BIT)
+    {
+        DISP_ERR("error in fread");
+        free(data_ptr);
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return NULL;
+    }
+
+    uint16_t *new_data_ptr = (uint16_t *)malloc(img_width*img_height*sizeof(uint16_t));
+    if(!new_data_ptr)
+    {
+        DISP_ERR(ERR_MALLOC);
+        free(data_ptr);
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return NULL;
+    }
+
+    uint32_t i = 0, j = 0;
+    uint8_t *tmp_data_ptr = data_ptr+HEAD_INFO_SIZE_16BIT;
+    uint16_t *tmp_new_data_ptr = new_data_ptr;
+    uint16_t ntmp = 0, tmp = 0;
+    for(i = 0; i < img_height; i++)
+    {
+        for(j = 0; j < img_width; j+=2)
+        {
+            tmp = 0;
+            tmp |= tmp_data_ptr[j];
+            tmp <<= 8;
+            tmp |= tmp_data_ptr[j+1];
+
+            ntmp = 0;
+            ntmp |= ((tmp & 0xF800) >> 11);
+            ntmp |= (tmp & 0x7E0);
+            ntmp |= ((tmp & 0x1F) << 11);
+            
+            *tmp_new_data_ptr++ = ntmp;
+        }
+        tmp_data_ptr += real_width;
+    }
+
+    free(data_ptr);
+    fclose(g_image_fp);
+    g_image_fp = NULL;
+
+    return new_data_ptr;
+}
+#endif //__OS
+
+_G_STATUS image_write_rbg888(uint32_t img_width, uint32_t img_height, 
+    uint8_t *data_addr, int8_t *img_file)
+{
+    #ifdef __FATFS
+    g_image_fp = fopen_rewrite(img_file, "w+");
+    #else
+    g_image_fp = fopen(img_file, "w+");
+    #endif //__FATFS
+    
+    if(!g_image_fp)
+    {
+        DISP_ERR("error in fopen");
+        return STAT_ERR;
+    }
+#ifdef __OS
+    if(feof(g_image_fp) || ferror(g_image_fp))
+    {
+        DISP_ERR("error in feof or ferror");
+        fclose(g_image_fp);
+        g_image_fp = NULL;
+        return STAT_ERR;
+    }
+#endif //__OS
+
+    uint32_t real_width = COUNT_REAL_WIDTH(img_width*24);
+    uint32_t total_size = real_width*img_height + HEAD_INFO_SIZE;
+    uint32_t ret = 0;
+
+    #ifdef __FATFS
+    ret = fwrite_rewrite(data_addr, sizeof(uint8_t), total_size, g_image_fp);
+    #else
+    ret = fwrite(data_addr, sizeof(uint8_t), total_size, g_image_fp);
+    #endif //__FATFS
+
+    if(ret != total_size)
+    {
+        DISP_ERR("error in fwrite");
+        #ifdef __FATFS
+        fclose_rewrite(g_image_fp);
+        #else
+        fclose(g_image_fp);
+        #endif //__FATFS
+        g_image_fp = NULL;
+        return STAT_ERR;
+    }
+
+    #ifdef __FATFS
+    fclose_rewrite(g_image_fp);
+    #else
+    fclose(g_image_fp);
+    #endif //__FATFS
+    g_image_fp = NULL;
+
+    return STAT_OK;
+}
+
+
+
+/*************************************************************************
+                          extended functions
+ ************************************************************************/
+
+#ifndef __OS
+
+#ifdef __FATFS
+
+#include "bsp_sdio_sd.h"
+
+FATFS g_fs;
+
+FIL *fopen_rewrite(const int8_t *path, int8_t *mode)
+{
+    if(mode[0] == 'w' && mode[1] == '+')
+    {
+        FRESULT res_sd;
+        res_sd = f_open(&g_fp, path, FA_CREATE_ALWAYS | FA_WRITE );
+        if(res_sd != FR_OK)
+            return NULL;
+    }
+    else
+        return NULL;
+
+    return ((FIL *)&g_fp);
+}
+
+uint32_t fwrite_rewrite(const void* buf, uint32_t unused, 
+    uint32_t write_size, FIL *fp)
+{
+    uint32_t count_write = 0;
+    FRESULT res_sd;
+    res_sd = f_write(fp, buf, write_size, &count_write); 
+    if((res_sd != FR_OK))
+        return 0;
+
+    return count_write;
+}
+
+_G_STATUS sd_mount(void)
+{
+    FRESULT sd_ret;
+    sd_ret = f_mount(&g_fs, "0:", 1);
+    if(sd_ret == FR_NO_FILESYSTEM)
+    {
+        DISP("no file system in card, ready to format \n");
+        sd_ret = f_mkfs("0:", 0, 0);
+        if(sd_ret == FR_OK)
+        {
+            DISP("finish formatting \n");
+            sd_ret = f_mount(NULL, "0:", 1); //remount after format
+            sd_ret = f_mount(&g_fs, "0:", 1);
+        }
+        else
+        {
+            DISP_ERR("failed to format");
+            f_mount(NULL, "0:", 1);
+            return STAT_ERR;
+        }
+    }
+    else if(sd_ret != FR_OK)
+    {
+        DISP_ERR_PLUS("failed to mount, error code: %d \n", sd_ret);
+        DISP_ERR("ensure card inserted to the board");
+        DISP_ERR("ensure 3V3_WIFI connetted to 3V3 instead of GND");
+        f_mount(NULL, "0:", 1);
+        return STAT_ERR;
+    }
+
+    return STAT_OK;
+}
+
+#endif //__FATFS
+
+#endif //#ifndef __OS
 

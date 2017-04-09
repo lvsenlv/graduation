@@ -9,7 +9,9 @@
 #define __COMMON_H
 
 #include <stdio.h>
+#ifdef __OS
 
+#ifdef __LINUX
 typedef     char                            int8_t;
 typedef     short                           int16_t;
 typedef     int                             int32_t;
@@ -18,7 +20,16 @@ typedef     unsigned char                   uint8_t;
 typedef     unsigned short                  uint16_t;
 typedef     unsigned int                    uint32_t;
 typedef     unsigned long long              uint64_t;
+#else //__LINUX
+#include <stdint.h>
+#endif //__LINUX
 
+#else //__OS
+#include <stdint.h>
+#endif //__OS
+
+//#undef      NULL
+//#define     NULL                            ((void *)0)
 
 #define     _VOL                            volatile
 #define     _CON                            const
@@ -31,18 +42,19 @@ typedef     unsigned long long              uint64_t;
 #define     ERR_FATAL                       "fatal error"
 #define     ERR_BMP                         "invalid bmp image"
 
-#define     DISP_ERR(str) \
-            fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
-#define     DISP_ERR_PLUS(format, args...) \
-            fprintf(stderr, format, ##args)
-
 typedef enum {
     STAT_OK = 0,
     STAT_ERR,
 }_G_STATUS;
 
-#ifdef __LINUX
+#ifdef __OS
 
+#define     DISP_ERR(str) \
+            fprintf(stderr, "[%s][%d]: %s \n", __func__, __LINE__, str)
+#define     DISP_ERR_PLUS(format, args...) \
+            fprintf(stderr, format, ##args)
+
+#ifdef __LINUX
 #include <sys/time.h>
 extern struct timeval g_start_time, g_stop_time;
 #define     START_COUNT                     gettimeofday(&g_start_time, NULL)
@@ -51,6 +63,7 @@ extern struct timeval g_start_time, g_stop_time;
             fprintf(stdout, "projec cost about %ldus in total\n", \
             (g_stop_time.tv_sec - g_start_time.tv_sec) * 1000000 + \
              g_stop_time.tv_usec - g_start_time.tv_usec)
+#endif //__LINUX
 
 #ifdef __REDIRECTION
 extern FILE *g_disp_file;
@@ -61,10 +74,11 @@ extern FILE *g_disp_file;
             fprintf(stdout, format, ##args)
 #endif //__REDIRECTION
 
-#else //__LINUX
-#define     DISP(format, args...) \
-            fprintf(stdout, format, ##args)
+#else //__OS
+#define     DISP(format, args...)           ((void)0)
+#define     DISP_ERR(str)                   ((void)0)
+#define     DISP_ERR_PLUS(format, args...)  ((void)0)
 
-#endif //__LINUX
+#endif //__OS
 
 #endif

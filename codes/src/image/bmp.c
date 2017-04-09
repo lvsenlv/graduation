@@ -1060,11 +1060,11 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
 
         //make sure that the heigth of template is the same as digit's
         height_tp = width * 2 ;        
-        if((height_tp - height) > 0)
+        if(height_tp > height)
         {
             situation = 1;
         }
-        else if((height_tp - height) < 0)
+        else if(height_tp < height)
         {
             situation = 2;
         }
@@ -1097,7 +1097,7 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
                     tmp = 0;
                     for(j = 0; j < height; j++)
                     {
-                        offset = (uint32_t)(((float)j*height_tp)/height + 0.5);
+                        offset = (uint32_t)(((float)j*height_tp)/height + 0.5f);
                         tmp_template_ptr = template_ptr + offset*width;
                         for(k = 0; k < width; k++)
                         {
@@ -1119,7 +1119,7 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
                     tmp = 0;
                     for(j = 0; j < height_tp; j++)
                     {
-                        offset = (uint32_t)(((float)j*height)/height_tp + 0.5);
+                        offset = (uint32_t)(((float)j*height)/height_tp + 0.5f);
                         tmp_digit_ptr = digit_ptr - offset*real_width;
                         for(k = 0; k < width; k++)
                         {
@@ -1459,4 +1459,150 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
     return STAT_OK;
 }
 #endif
+
+/*************************************************************************
+                          extended functions
+ ************************************************************************/
+ 
+uint8_t *bmp_rgb565_to_rgb888(uint32_t img_width, uint32_t img_height, 
+    uint16_t *data_addr)
+{
+    uint32_t real_width = COUNT_REAL_WIDTH(img_width*24);
+    uint32_t real_size = real_width * img_height;
+    uint8_t *new_data_ptr = (uint8_t *)malloc(real_size + HEAD_INFO_SIZE);
+    if(!new_data_ptr)
+    {
+        DISP_ERR(ERR_MALLOC);
+        return NULL;
+    }
+
+    //create head info for rgb888
+    uint32_t size = real_size + HEAD_INFO_SIZE;
+    uint32_t tmp = 0;
+    new_data_ptr[0] = 'B';
+    new_data_ptr[1] = 'M';
+    
+    tmp = size;
+    new_data_ptr[2] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[3] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[4] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[5] = tmp & 0xFF;
+
+    new_data_ptr[6] = 0;
+    new_data_ptr[7] = 0;
+    new_data_ptr[8] = 0;
+    new_data_ptr[9] = 0;
+
+    new_data_ptr[10] = HEAD_INFO_SIZE;
+    new_data_ptr[11] = 0;
+    new_data_ptr[12] = 0;
+    new_data_ptr[13] = 0;
+
+    new_data_ptr[14] = 40;
+    new_data_ptr[15] = 0;
+    new_data_ptr[16] = 0;
+    new_data_ptr[17] = 0;
+    
+    tmp = img_width;
+    new_data_ptr[18] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[19] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[20] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[21] = tmp & 0xFF;
+
+    tmp = img_height;
+    new_data_ptr[22] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[23] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[24] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[25] = tmp & 0xFF;
+
+    new_data_ptr[26] = 1;
+    new_data_ptr[27] = 0;
+    
+    new_data_ptr[28] = 24;
+    new_data_ptr[29] = 0;
+
+    new_data_ptr[30] = 0;
+    new_data_ptr[31] = 0;
+    new_data_ptr[32] = 0;
+    new_data_ptr[33] = 0;
+
+    tmp = real_size;
+    new_data_ptr[34] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[35] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[36] = tmp & 0xFF;
+    tmp >>= 8;
+    new_data_ptr[37] = tmp & 0xFF;
+
+    new_data_ptr[38] = 0xC4;
+    new_data_ptr[39] = 0x0E;
+    new_data_ptr[40] = 0;
+    new_data_ptr[41] = 0;
+
+    new_data_ptr[42] = 0xC4;
+    new_data_ptr[43] = 0x0E;
+    new_data_ptr[44] = 0;
+    new_data_ptr[45] = 0;
+
+    new_data_ptr[46] = 0;
+    new_data_ptr[47] = 0;
+    new_data_ptr[48] = 0;
+    new_data_ptr[49] = 0;
+
+    new_data_ptr[50] = 0;
+    new_data_ptr[51] = 0;
+    new_data_ptr[52] = 0;
+    new_data_ptr[53] = 0;
+
+    //convert rgb565 to rgb888
+    uint8_t *tmp_ptr = NULL;
+    uint32_t fill_pixel_num = real_width - ((img_width * 24) >> 3);
+    uint16_t i = 0, j = 0;
+    uint16_t *data_ptr = NULL;
+
+    tmp_ptr = new_data_ptr + HEAD_INFO_SIZE;
+    if(0 == fill_pixel_num)
+    {
+        for(i = 0; i < img_height; i++)
+        {
+            data_ptr = data_addr + i*img_width;
+            for(j = 0; j < img_width; j++)
+            {
+                *tmp_ptr++ = (data_ptr[j] & 0x001F) << 3;
+                *tmp_ptr++ = ((data_ptr[j] & 0x07E0) >> 5) << 2;
+                *tmp_ptr++ = ((data_ptr[j] & 0xF800) >> 11) << 3;
+            }
+        }
+    }
+    else
+    {
+        for(i = 0; i < img_height; i++)
+        {
+            data_ptr = data_addr + i*img_width;
+            for(j = 0; j < img_width; j++)
+            {
+                *tmp_ptr++ = (data_ptr[j] & 0x001F) << 3;
+                *tmp_ptr++ = ((data_ptr[j] & 0x07E0) >> 5) << 2;
+                *tmp_ptr++ = ((data_ptr[j] & 0xF800) >> 11) << 3;
+            }
+
+            for(j = 0; j < fill_pixel_num; j++)
+            {
+                *tmp_ptr++ = 0;
+            }
+        }
+    }
+
+    return new_data_ptr;
+}
 

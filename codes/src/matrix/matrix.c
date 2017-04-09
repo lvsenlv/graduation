@@ -154,7 +154,7 @@ _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB,
             }
 #endif //__DEBUG
             return matrix_sum_sub(matA, matB, MAT_ADD);
-            break;
+            //break;
         case MAT_SUB :
 #ifdef __DEBUG
             if(matA->row != matB->row || matA->col !=matB->col)
@@ -164,7 +164,7 @@ _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB,
             }
 #endif //__DEBUG
             return matrix_sum_sub(matA, matB, MAT_SUB);
-            break;
+            //break;
         case MAT_MUL :
 #ifdef __DEBUG
             if(matA->col != matB->row)
@@ -174,7 +174,7 @@ _matrix_pt matrix_calculate(_matrix_pt matA, _matrix_pt matB,
             }
 #endif //__DEBUG
             return matrix_multiply(matA, matB);
-            break;
+            //break;
         default :
             DISP_ERR("invalid symbol");
             break;
@@ -207,7 +207,7 @@ _STA _matrix_pt matrix_sum_sub(_matrix_pt matA, _matrix_pt matB,
             }
 
             return mat_ret;
-            break;
+            //break;
         case MAT_SUB :
             mat_ret = matrix_create(matA->row, matA->col);
             if(!mat_ret)
@@ -223,10 +223,10 @@ _STA _matrix_pt matrix_sum_sub(_matrix_pt matA, _matrix_pt matB,
             }
 
             return mat_ret;
-            break;
+            //break;
         default :
             return NULL;
-            break;
+            //break;
     }
 }
 
@@ -286,7 +286,7 @@ void *sum(_matrix_pt mat, ...)
     }
 #endif //__DEBUG
 
-    va_list arg_ptr = NULL;
+    va_list arg_ptr;
     int opts = 0;
     uint32_t ret = 0;
     _MAT_ROW row = mat->row;
@@ -323,7 +323,7 @@ void *sum(_matrix_pt mat, ...)
             
             va_end(arg_ptr);
             return mat_ret;
-            break;
+            //break;
         case SUM_ALL :
             for(i = 0; i < size; i++)
             {
@@ -332,7 +332,7 @@ void *sum(_matrix_pt mat, ...)
 
             va_end(arg_ptr);
             return (uint32_t *)ret;
-            break;
+            //break;
         case SUM_ROW:
         default :    
             if(1 == col)
@@ -354,14 +354,11 @@ void *sum(_matrix_pt mat, ...)
                 }
                 mat_ret->pMat[i] = ret;
             }
-            
-            va_end(arg_ptr);
-            return mat_ret;
             break;
     }
 
     va_end(arg_ptr);
-    return NULL;
+    return mat_ret;
 }
 
 _MAT_TYPE max(_matrix_pt mat)

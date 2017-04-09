@@ -88,5 +88,12 @@ _G_STATUS bmp_digit_row_locate(_bmp_pt bmp);
 _G_STATUS bmp_digit_col_locate(_bmp_pt bmp);
 _G_STATUS bmp_digit_recognize(_bmp_pt bmp);
 
+/*************************************************************************
+                          extended functions
+ ************************************************************************/
+ 
+uint8_t *bmp_rgb565_to_rgb888(uint32_t img_width, uint32_t img_height, 
+    uint16_t *data_addr);
+
 #endif
 

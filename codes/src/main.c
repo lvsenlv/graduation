@@ -9,6 +9,9 @@
 #include "template.h"
 #include "stdlib.h"
 
+extern unsigned short sky_animation_mask[];
+extern const uint32_t g_test;
+
 int main(int argc, char **argv)
 {
     _bmp_pt bmp = NULL;
@@ -138,4 +141,6 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+const uint32_t g_test = 123;
 
