@@ -1041,7 +1041,7 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
         width_start = col_array[0];
         width_end = col_array[1];
         width = width_end - width_start;
-        if((height/width) >= 2)
+        if((height/width) >= DIGIT_ONE_RATIO)
         {
             *col_array_remain++ = 1; //the digit is "1"
             *col_array_remain = COL_ARRAY_REAL_END;
@@ -1236,7 +1236,7 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
         width_start = col_array[0];
         width_end = col_array[1];
         width = width_end - width_start;
-        if((height/width) >= 2)
+        if((height/width) >= DIGIT_ONE_RATIO)
         {
             *col_array_remain++ = 1; //the digit is "1"
             *col_array_remain = COL_ARRAY_REAL_END;
@@ -1392,7 +1392,7 @@ _G_STATUS bmp_digit_recognize(_bmp_pt bmp)
         width_start = col_array[0];
         width_end = col_array[1];
         width = width_end - width_start;
-        if((height/width) >= 2)
+        if((height/width) >= DIGIT_ONE_RATIO)
         {
             *col_array_remain++ = 1; //the digit is "1"
             *col_array_remain = COL_ARRAY_REAL_END;

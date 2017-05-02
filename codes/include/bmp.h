@@ -18,6 +18,9 @@
 #define     FILTER_OFFSET_PLUS              ((FILTER_MODEL_SIZE*FILTER_MODEL_SIZE) >> 1)
 #define     COL_ARRAY_END                   0xFFFF
 #define     COL_ARRAY_REAL_END              0xFFFFF
+#define     DIGIT_ONE_RATIO                 3
+            //it is the digit 1 if height/widht > DIGIT_ONE_RATIO
+
 #define     MIDDLE(a, b, c) \
             (   (a)>(b)   \
                  ?   \

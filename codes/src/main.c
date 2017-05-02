@@ -52,6 +52,7 @@ int main(int argc, char **argv)
         bmp_free(bmp_ret);
         return -1;
     }
+    
 
     uint8_t threshold = 0;
     if(bmp_get_threshold(bmp_ret, &threshold))
@@ -135,7 +136,7 @@ int main(int argc, char **argv)
     {
         DISP("%d \n", *col_array_remain++);
     }
-  
+    
     bmp_free(bmp);
     bmp_free(bmp_ret);
 
